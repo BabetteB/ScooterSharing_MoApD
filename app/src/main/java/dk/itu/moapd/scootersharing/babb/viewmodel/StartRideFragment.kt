@@ -10,11 +10,23 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import java.util.*
 
 class StartRideFragment : Fragment() {
+
+    private var count = 0u
+
+    private lateinit var auth : FirebaseAuth
+    private lateinit var database : DatabaseReference
 
     private var _binding : FragmentStartRideBinding? = null
     private val binding
@@ -24,12 +36,18 @@ class StartRideFragment : Fragment() {
 
     companion object{
         private val TAG = StartRideFragment::class.qualifiedName
+        private lateinit var DATABASE_URL: String
         const val REQUEST_KEY_NEW_SCOOTER = "REQUEST_KEY_NEW_SCOOTER"
         const val BUNDLE_KEY_NEW_SCOOTER = "BUNDLE_KEY_NEW_SCOOTER"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = FirebaseAuth.getInstance()
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
+        database = Firebase.database(DATABASE_URL).reference
+
+
 
         Log.d(TAG, "fragment created")
     }
@@ -51,13 +69,7 @@ class StartRideFragment : Fragment() {
 
         with(binding) {
             buttonStartRide.setOnClickListener {
-                Toast.makeText(
-                    binding.root.context,
-                    "Scooter created",
-                    Toast.LENGTH_SHORT
-                ).show()
-                setFragmentResult(REQUEST_KEY_NEW_SCOOTER, bundleOf(BUNDLE_KEY_NEW_SCOOTER to createNewScooter()))
-                navController.popBackStack()
+                createNewScooter()
             }
 
             buttonBack.setOnClickListener {
@@ -66,12 +78,52 @@ class StartRideFragment : Fragment() {
         }
     }
 
-    private fun createNewScooter() : Scooter {
+    private fun createNewScooter() {
         val name = binding.informationInput.nameInput.text.toString().trim()
         val location = binding.informationInput.locationInput.text.toString().trim()
-        return Scooter(UUID.randomUUID(), name, location)
+
+        val scooter = Scooter(getNewId(), name, location)
+
+        addNewScooterInDatabase(scooter)
     }
 
+    private fun addNewScooterInDatabase(scooter: Scooter) {
+        // In the case of authenticated user, create a new unique key for the object in the
+        // database.
+        auth.currentUser?.let { user ->
+            val uid = database.child("scooters")
+                .child(user.uid)
+                .push()
+                .key
+
+            // Insert the object in the database.
+            uid?.let {
+                database.child("scooters")
+                    .child(user.uid)
+                    .child(it)
+                    .setValue(scooter) // Using setValue() in this way overwrites data at the specified location, including any child nodes.
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            binding.root.context,
+                            "Scooter created",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(
+                            binding.root.context,
+                            "An error occurred. Scooter not created",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+            }
+        }
+    }
+
+    private fun getNewId() : UInt {
+        count = count++
+        return count
+    }
 
 
 }

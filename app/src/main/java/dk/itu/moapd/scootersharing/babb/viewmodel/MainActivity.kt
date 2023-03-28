@@ -31,10 +31,12 @@ import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
+import dk.itu.moapd.scootersharing.babb.RideListFragment
 import dk.itu.moapd.scootersharing.babb.databinding.ActivityMainBinding
 import dk.itu.moapd.scootersharing.babb.model.CustomAdapter
 import dk.itu.moapd.scootersharing.babb.model.ItemClickListener
@@ -52,6 +54,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
      * Binding view and activity
      */
     private lateinit var mainBinding : ActivityMainBinding
+
+    private var user : FirebaseUser? = null
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
 
@@ -68,12 +72,14 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         super.onCreate(savedInstanceState)
 
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
+        Firebase.database(DATABASE_URL).setPersistenceEnabled(true)
 
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
+        user = auth.currentUser
         // Initialize Firebase database
         database = Firebase.database(DATABASE_URL).reference
 
@@ -86,27 +92,16 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
 
         setSupportActionBar(findViewById(R.id.main_toolbar))
 
-        auth.currentUser?.let {
-            val query = database.child("scooters")
-                .child(it.uid)
-                .orderByChild("location")
-            val options = FirebaseRecyclerOptions.Builder<Scooter>()
-                .setQuery(query, Scooter::class.java)
-                .setLifecycleOwner(this)
-                .build()
-
-            adapter = CustomAdapter(this, options)
-        }
-
     }
 
 
 
     override fun onStart() {
         super.onStart()
+
+
         if (auth.currentUser == null)
             startLoginActivity()
-        adapter.startListening()
     }
 
 
@@ -117,6 +112,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         finish()
     }
 
+
     private fun updateScooterLocation(location : String) {
         auth.currentUser?.let {
             database.child("scooters")
@@ -126,32 +122,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-    private fun addNewScooter(scooter: Scooter) {
-        // In the case of authenticated user, create a new unique key for the object in the
-        // database.
-        auth.currentUser?.let { user ->
-            val uid = database.child("scooters")
-                .child(user.uid)
-                .push()
-                .key
 
-            // Insert the object in the database.
-            uid?.let {
-                database.child("scooters")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(scooter) // Using setValue() in this way overwrites data at the specified location, including any child nodes.
-                    .addOnSuccessListener {
-                        // Write was successful!
-                        // ...
-                    }
-                    .addOnFailureListener {
-                        // Write failed
-                        // ...
-                    }
-            }
-        }
-    }
 
     private fun deleteScooter(scooterRef : DatabaseReference) {
         //TODO: add method for checking this
@@ -179,9 +150,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         }
     }
 
-    private fun addValueEventListener() {
-
-    }
 
     override fun onRideClicked(scooterId: String) {
         TODO("Not yet implemented")

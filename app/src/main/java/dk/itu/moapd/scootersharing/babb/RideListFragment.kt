@@ -9,11 +9,10 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.database.FirebaseDatabase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
-import dk.itu.moapd.scootersharing.babb.model.ItemClickListener
-import dk.itu.moapd.scootersharing.babb.model.RideListAdapter
-import dk.itu.moapd.scootersharing.babb.model.RidesDB
-import dk.itu.moapd.scootersharing.babb.model.Scooter
+import dk.itu.moapd.scootersharing.babb.model.*
 import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
 import kotlinx.coroutines.launch
@@ -22,6 +21,8 @@ import java.util.*
 private const val TAG = "RideListFragment"
 
 class RideListFragment : Fragment(), ItemClickListener {
+
+    private lateinit var adapter : CustomAdapter
 
     private var _binding: FragmentRideListBinding? = null
     private val binding
@@ -49,18 +50,19 @@ class RideListFragment : Fragment(), ItemClickListener {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        //val adapter = makeAdapter(ridesDB.getRidesList(), this)
+        val options =
+            FirebaseRecyclerOptions.Builder<Scooter>()
+                .setQuery(FirebaseDatabase.getInstance().getReference().child("scooters"), Scooter::class.java)
+                .build()
 
-        //updateBinding(adapter)
+        adapter = CustomAdapter(this, options)
+
+        updateBinding(adapter)
 
         return binding.root
     }
 
-    private fun makeAdapter(list : List<Scooter>, itemClickListener: ItemClickListener) : RideListAdapter {
-        return RideListAdapter(list, itemClickListener)
-    }
-
-    private fun updateBinding(adapter : RideListAdapter) {
+    private fun updateBinding(adapter : CustomAdapter) {
         binding.rideRecyclerView.adapter = adapter
     }
 

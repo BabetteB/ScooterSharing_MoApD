@@ -44,7 +44,11 @@
     <fragment
         android:id="@+id/scooterFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
-        android:label="ScooterFragment" />
+        android:label="ScooterFragment" >
+        <action
+            android:id="@+id/create_new_scooter"
+            app:destination="@id/startRideFragment" />
+    </fragment>
 </navigation>
 
 
