@@ -1,6 +1,7 @@
 package dk.itu.moapd.scootersharing.babb
 
 import android.os.Bundle
+import android.os.FileUtils
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -30,6 +31,7 @@ class RideListFragment : Fragment(), ItemClickListener {
     private lateinit var adapter : CustomAdapter
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
+    private var vm = ScooterViewModel()
 
     companion object{
         private lateinit var DATABASE_URL: String
@@ -57,6 +59,9 @@ class RideListFragment : Fragment(), ItemClickListener {
     ): View? {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
+
+
+        val data = vm.getScooters()
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
