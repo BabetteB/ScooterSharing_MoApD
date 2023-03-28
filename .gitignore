@@ -12,6 +12,7 @@
 /captures
 .externalNativeBuild
 .cxx
+#Local Config Files
 local.properties
 # Google Services (e.g. APIs or Firebase)
 google-services.json
