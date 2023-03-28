@@ -37,6 +37,7 @@ import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.ActivityMainBinding
 import dk.itu.moapd.scootersharing.babb.model.CustomAdapter
+import dk.itu.moapd.scootersharing.babb.model.ItemClickListener
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import java.util.UUID
 
@@ -44,7 +45,7 @@ import java.util.UUID
 /**
  * The MainActivity is the sole activity, used for storing the MainFragment
  */
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ItemClickListener {
 
     private lateinit var navController : NavController
     /**
@@ -56,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val TAG = "MAINACTIVITY"
-        
+        private lateinit var DATABASE_URL: String
         private lateinit var adapter: CustomAdapter
     }
 
@@ -65,6 +66,8 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
 
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
@@ -92,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                 .setLifecycleOwner(this)
                 .build()
 
-            //TODO: make customAdapter in rideListFragment
+            adapter = CustomAdapter(this, options)
         }
 
     }
@@ -180,7 +183,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onRideClicked(scooterId: String) {
+        TODO("Not yet implemented")
+    }
 
+    override fun onRideLongClicked(scooterId: String) {
+        TODO("Not yet implemented")
+    }
 
 
 }

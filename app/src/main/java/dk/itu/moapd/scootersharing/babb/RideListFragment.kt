@@ -49,9 +49,9 @@ class RideListFragment : Fragment(), ItemClickListener {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        val adapter = makeAdapter(ridesDB.getRidesList(), this)
+        //val adapter = makeAdapter(ridesDB.getRidesList(), this)
 
-        updateBinding(adapter)
+        //updateBinding(adapter)
 
         return binding.root
     }
@@ -80,7 +80,7 @@ class RideListFragment : Fragment(), ItemClickListener {
         ) {
                 _, bundle ->
             val newLocation = bundle.getSerializable(UpdateRideFragment.BUNDLE_KEY_UPDATED_SCOOTER_LOCATION) as Scooter
-            ridesDB.updateScooterLocation(UUID.randomUUID(), newLocation.location)
+            ridesDB.updateScooterLocation(newLocation.id, newLocation.location)
         }
 
 

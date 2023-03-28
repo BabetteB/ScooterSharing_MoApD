@@ -6,27 +6,28 @@ import kotlin.collections.ArrayList
 
 class RidesDB private constructor(context: Context) {
     private val rides = ArrayList<Scooter>()
+    private var count = 6u
 
     companion object : RidesDBHolder<RidesDB, Context>(::RidesDB)
 
     init {
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH001", "ITU", randomDate())
+            Scooter(1u, "CPH001", "ITU", randomDate())
         )
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH002", "Fields", randomDate())
+            Scooter(2u, "CPH002", "Fields", randomDate())
         )
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH003", "Lufthavn", randomDate())
+            Scooter(3u, "CPH003", "Lufthavn", randomDate())
         )
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH004", "Here", randomDate())
+            Scooter(4u, "CPH004", "Here", randomDate())
         )
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH005", "Over there", randomDate())
+            Scooter(5u, "CPH005", "Over there", randomDate())
         )
         rides.add(
-            Scooter(UUID.randomUUID(), "CPH006", "Somewhere", randomDate())
+            Scooter(6u, "CPH006", "Somewhere", randomDate())
         )
     }
 
@@ -38,19 +39,20 @@ class RidesDB private constructor(context: Context) {
         rides.remove(scooter)
     }
 
-    fun deleteScooter(scooterId : UUID) {
+    fun deleteScooter(scooterId : UInt) {
         val scooter = getScooter(scooterId)
         rides.remove(scooter)
     }
 
     fun addScooter(name: String, location: String) {
-        rides.add(Scooter(UUID.randomUUID(), name, location))
+        count = count++
+        rides.add(Scooter(count, name, location))
     }
     fun addScooter(scooter: Scooter) {
         rides.add(scooter)
     }
 
-    private fun getScooter (sid : UUID) : Scooter {
+    private fun getScooter (sid : UInt) : Scooter {
         rides.forEach{ s ->
             if (s.id == sid){
                 return s
@@ -59,7 +61,7 @@ class RidesDB private constructor(context: Context) {
         error("No scooter has that id")
     }
 
-    fun updateScooterLocation(sid: UUID, location: String){
+    fun updateScooterLocation(sid: UInt, location: String){
         val s = getScooter(sid)
         s.location = location
         s.lastUpdateTimeStamp = Calendar.getInstance().time

@@ -45,7 +45,7 @@ import java.util.UUID
  */
 @IgnoreExtraProperties
 data class Scooter (
-    val id : UUID,
+    val id : UInt,
     var name : String,
     var location : String,
     var createdAt : Long = 0L,

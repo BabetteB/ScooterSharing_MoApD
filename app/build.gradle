@@ -10,6 +10,11 @@ android {
     namespace 'dk.itu.moapd.scootersharing.babb'
     compileSdk 33
 
+    Properties properties = new Properties()
+
+    properties.load(
+            project.rootProject.file("local.properties").newDataInputStream())
+
     defaultConfig {
         applicationId "dk.itu.moapd.scootersharing.babb"
         minSdk 25
@@ -18,6 +23,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        resValue "string", "DATABASE_URL", properties.getProperty("DATABASE_URL")
     }
 
     buildTypes {
