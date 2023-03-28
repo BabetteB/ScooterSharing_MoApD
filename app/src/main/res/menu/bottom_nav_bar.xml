@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/rideListFragment"
+        android:enabled="true"
+        android:icon="@drawable/list"
+        android:title="List"/>
+
+    <item
+        android:id="@+id/mapFragment"
+        android:enabled="true"
+        android:icon="@drawable/map"
+        android:title="Map"/>
+
+    <item
+        android:id="@+id/scooterFragment"
+        android:enabled="true"
+        android:icon="@drawable/scooter"
+        android:title="Scooter"/>
+
+    <item
+        android:id="@+id/historyFragment"
+        android:enabled="true"
+        android:icon="@drawable/history"
+        android:title="History"/>
+
+</menu>

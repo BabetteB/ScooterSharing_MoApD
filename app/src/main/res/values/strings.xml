@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SKRT SCOOT</string>
+
+    <string name="scooter_name">Name:</string>
+    <string name="scooter_name_input_hint">Enter scooter name</string>
+    <string name="scooter_location">Location: </string>
+    <string name="scooter_location_input_hint">Enter scooter location</string>
+    <string name="scooter_last_update">Last update: </string>
+
+    <string name="button_go_back">Go back</string>
+
+    <string name="start_ride_button">Start Ride!</string>
+    <string name="update_ride_button">Update Ride!</string>
+    <string name="delete_scooter_button">Delete scooter</string>
+
+    <string name="update_ride_title">Update ride </string>
+    <string name="start_ride_title">Start ride</string>
+
+    <string name="toolbar_map_title">Map</string>
+    <string name="toolbar_list_title">List</string>
+    <string name="toolbar_ride_title">Ride</string>
+    <string name="toolbar_history_title">History</string>
+
+    <string name="new_ride">New Ride</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
