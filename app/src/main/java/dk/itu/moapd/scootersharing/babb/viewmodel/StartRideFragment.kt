@@ -70,6 +70,7 @@ class StartRideFragment : Fragment() {
         with(binding) {
             buttonStartRide.setOnClickListener {
                 createNewScooter()
+                navController.popBackStack()
             }
 
             buttonBack.setOnClickListener {
@@ -91,37 +92,28 @@ class StartRideFragment : Fragment() {
         // In the case of authenticated user, create a new unique key for the object in the
         // database.
         auth.currentUser?.let { user ->
-            val uid = database.child("scooters")
-                .child(user.uid)
-                .push()
-                .key
-
-            // Insert the object in the database.
-            uid?.let {
-                database.child("scooters")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(scooter) // Using setValue() in this way overwrites data at the specified location, including any child nodes.
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            binding.root.context,
-                            "Scooter created",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            binding.root.context,
-                            "An error occurred. Scooter not created",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
+            database.child("scooters")
+                .child(scooter.id.toString())
+                .setValue(scooter)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "Scooter created",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "An error occurred. Scooter not created",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
     }
 
     private fun getNewId() : UInt {
-        count = count++
+        count += 1u
         return count
     }
 

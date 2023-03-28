@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     companion object {
         val TAG = "MAINACTIVITY"
         private lateinit var DATABASE_URL: String
-        private lateinit var adapter: CustomAdapter
     }
 
     /**

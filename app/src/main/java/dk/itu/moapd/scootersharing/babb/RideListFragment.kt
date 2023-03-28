@@ -10,9 +10,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
+import dk.itu.moapd.scootersharing.babb.viewmodel.MainActivity
 import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
 import kotlinx.coroutines.launch
@@ -23,6 +28,12 @@ private const val TAG = "RideListFragment"
 class RideListFragment : Fragment(), ItemClickListener {
 
     private lateinit var adapter : CustomAdapter
+    private lateinit var auth : FirebaseAuth
+    private lateinit var database : DatabaseReference
+
+    companion object{
+        private lateinit var DATABASE_URL: String
+    }
 
     private var _binding: FragmentRideListBinding? = null
     private val binding
@@ -30,16 +41,13 @@ class RideListFragment : Fragment(), ItemClickListener {
             "Cannot access binding."
         }
 
-    companion object {
-        lateinit var ridesDB : RidesDB
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ridesDB = RidesDB.get(this.requireActivity())
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
 
-        //setHasOptionsMenu(true)
-        Log.d(TAG, "Total rides: ${ridesDB.getRidesList().size}")
+        auth = FirebaseAuth.getInstance()
+        // Initialize Firebase database
+        database = Firebase.database(DATABASE_URL).reference
     }
 
     override fun onCreateView(
@@ -52,7 +60,7 @@ class RideListFragment : Fragment(), ItemClickListener {
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
-                .setQuery(FirebaseDatabase.getInstance().getReference().child("scooters"), Scooter::class.java)
+                .setQuery(database.child("scooters"), Scooter::class.java)
                 .build()
 
         adapter = CustomAdapter(this, options)
@@ -70,19 +78,11 @@ class RideListFragment : Fragment(), ItemClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         setFragmentResultListener(
-            StartRideFragment.REQUEST_KEY_NEW_SCOOTER
-        ) {
-            _, bundle ->
-            val newScooter = bundle.getSerializable(StartRideFragment.BUNDLE_KEY_NEW_SCOOTER) as Scooter
-            ridesDB.addScooter(newScooter)
-        }
-
-        setFragmentResultListener(
             UpdateRideFragment.REQUEST_KEY_UPDATED_SCOOTER_LOCATION
         ) {
                 _, bundle ->
             val newLocation = bundle.getSerializable(UpdateRideFragment.BUNDLE_KEY_UPDATED_SCOOTER_LOCATION) as Scooter
-            ridesDB.updateScooterLocation(newLocation.id, newLocation.location)
+            //ridesDB.updateScooterLocation(newLocation.id, newLocation.location)
         }
 
 
@@ -92,29 +92,6 @@ class RideListFragment : Fragment(), ItemClickListener {
         super.onDestroyView()
         _binding = null
     }
-
-    /*override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_new_ride, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.new_ride -> {
-                showNewRide()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun showNewRide() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            findNavController().navigate(
-                RideListFragmentDirections.showStartRide()
-            )
-        }
-    } */
 
     override fun onRideClicked(scooterId: String) {
         findNavController().navigate(
