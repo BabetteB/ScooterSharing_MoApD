@@ -25,23 +25,27 @@ package dk.itu.moapd.scootersharing.babb.viewmodel
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
+import androidx.activity.viewModels
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.Query
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.RideListFragment
 import dk.itu.moapd.scootersharing.babb.databinding.ActivityMainBinding
-import dk.itu.moapd.scootersharing.babb.model.CustomAdapter
-import dk.itu.moapd.scootersharing.babb.model.ItemClickListener
-import dk.itu.moapd.scootersharing.babb.model.Scooter
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
+import dk.itu.moapd.scootersharing.babb.model.*
 import java.util.UUID
+
 
 
 /**
@@ -50,37 +54,42 @@ import java.util.UUID
 class MainActivity : AppCompatActivity(), ItemClickListener {
 
     private lateinit var navController : NavController
+    private lateinit var DATABASE_URL: String
+    private lateinit var vm : ScooterViewModel
+
+
     /**
      * Binding view and activity
      */
     private lateinit var mainBinding : ActivityMainBinding
 
-    private var user : FirebaseUser? = null
     private lateinit var auth : FirebaseAuth
-    private lateinit var database : DatabaseReference
 
     companion object {
         val TAG = "MAINACTIVITY"
-        private lateinit var DATABASE_URL: String
+
+        lateinit var database: DatabaseReference
+
     }
 
     /**
      * upon creating the instance of main activity, inflate the binding (see activity_main.xml)
      */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        // Initialize Firebase database
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
-        Firebase.database(DATABASE_URL).setPersistenceEnabled(true)
+        database = Firebase.database(DATABASE_URL).reference
+
+        vm = ScooterViewModel()
+
+        // Initialize Firebase Auth.
+        auth = FirebaseAuth.getInstance()
 
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
-        // Initialize Firebase Auth.
-        auth = FirebaseAuth.getInstance()
-        user = auth.currentUser
-        // Initialize Firebase database
-        database = Firebase.database(DATABASE_URL).reference
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_container) as NavHostFragment
         navController = navHostFragment.navController

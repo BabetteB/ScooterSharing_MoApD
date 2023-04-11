@@ -7,19 +7,32 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.scootersharing.babb.R
+import dk.itu.moapd.scootersharing.babb.viewmodel.MainActivity
 
 class ScooterViewModel : ViewModel() {
     private lateinit var adapter : CustomAdapter
     private lateinit var auth : FirebaseAuth
-    private lateinit var database : DatabaseReference
     private lateinit var scooters : List<Scooter>
+    lateinit var DATABASE_URL: String
+
 
     companion object{
-        private lateinit var DATABASE_URL: String
         private val TAG = "ScooterViewModel"
+
+
+    }
+
+
+    fun getDB() : DatabaseReference{
+        return MainActivity.database
     }
 
     fun getScooters() {
+        var database = getDB()
+
         database.addValueEventListener(
             object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {

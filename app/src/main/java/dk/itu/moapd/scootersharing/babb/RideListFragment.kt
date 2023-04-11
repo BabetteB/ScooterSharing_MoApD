@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -29,12 +30,10 @@ private const val TAG = "RideListFragment"
 class RideListFragment : Fragment(), ItemClickListener {
 
     private lateinit var adapter : CustomAdapter
-    private lateinit var auth : FirebaseAuth
-    private lateinit var database : DatabaseReference
-    private var vm = ScooterViewModel()
+    private val vm : ScooterViewModel by activityViewModels()
+    private lateinit var database: DatabaseReference
 
     companion object{
-        private lateinit var DATABASE_URL: String
     }
 
     private var _binding: FragmentRideListBinding? = null
@@ -45,11 +44,8 @@ class RideListFragment : Fragment(), ItemClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
 
-        auth = FirebaseAuth.getInstance()
-        // Initialize Firebase database
-        database = Firebase.database(DATABASE_URL).reference
+        database = vm.getDB()
     }
 
     override fun onCreateView(

@@ -62,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
     private fun toast(text: CharSequence,
                       duration: Int = Toast.LENGTH_SHORT) {
         Toast.makeText(
-            findViewById(android.R.id.content),
+            this,
             text,
             duration
         ).show()
