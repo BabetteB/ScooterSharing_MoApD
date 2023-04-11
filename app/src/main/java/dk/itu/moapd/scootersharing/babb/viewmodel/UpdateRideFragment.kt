@@ -68,7 +68,7 @@ class UpdateRideFragment : Fragment() {
                 val newLocation = checkNotNull(informationInput.locationInput.text.toString().trim())
                 setFragmentResult(
                     REQUEST_KEY_UPDATED_SCOOTER_LOCATION, bundleOf(
-                        BUNDLE_KEY_UPDATED_SCOOTER_LOCATION to Scooter(1u, args.rideName, newLocation)
+                        BUNDLE_KEY_UPDATED_SCOOTER_LOCATION to Scooter(UUID.randomUUID(), args.rideName, newLocation)
                     )
                 )
                 navController.popBackStack()

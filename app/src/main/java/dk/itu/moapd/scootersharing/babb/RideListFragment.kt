@@ -1,39 +1,30 @@
 package dk.itu.moapd.scootersharing.babb
 
 import android.os.Bundle
-import android.os.FileUtils
-import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
-import dk.itu.moapd.scootersharing.babb.viewmodel.MainActivity
-import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
-import kotlinx.coroutines.launch
-import java.util.*
 
-private const val TAG = "RideListFragment"
 
 class RideListFragment : Fragment(), ItemClickListener {
-
-    private lateinit var adapter : CustomAdapter
     private val vm : ScooterViewModel by activityViewModels()
+
     private lateinit var database: DatabaseReference
+    private lateinit var auth : FirebaseAuth
+
+
 
     companion object{
+        private lateinit var adapter : CustomAdapter
     }
 
     private var _binding: FragmentRideListBinding? = null
@@ -46,33 +37,44 @@ class RideListFragment : Fragment(), ItemClickListener {
         super.onCreate(savedInstanceState)
 
         database = vm.getDB()
+        auth = FirebaseAuth.getInstance()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
-
-        val data = vm.getScooters()
+        // get all scooters and sort by location
+        val query = database
+            .child("scooters")
+            //.child(scooter.id)
+        //.orderByChild("location")
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
-                .setQuery(database.child("scooters"), Scooter::class.java)
+                .setQuery(query, Scooter::class.java)
+                .setLifecycleOwner(this)
                 .build()
 
-        adapter = CustomAdapter(this, options)
+        //adapter = CustomAdapter(this, options)
 
-        updateBinding(adapter)
-
+        //updateBinding(adapter)
         return binding.root
     }
 
+
+
     private fun updateBinding(adapter : CustomAdapter) {
         binding.rideRecyclerView.adapter = adapter
+    }
+
+    override fun onStart() {
+        super.onStart()
+        //adapter.startListening()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -81,8 +83,8 @@ class RideListFragment : Fragment(), ItemClickListener {
         setFragmentResultListener(
             UpdateRideFragment.REQUEST_KEY_UPDATED_SCOOTER_LOCATION
         ) {
-                _, bundle ->
-            val newLocation = bundle.getSerializable(UpdateRideFragment.BUNDLE_KEY_UPDATED_SCOOTER_LOCATION) as Scooter
+                _, _ ->
+            //val newLocation = bundle.getSerializable(UpdateRideFragment.BUNDLE_KEY_UPDATED_SCOOTER_LOCATION) as Scooter
             //ridesDB.updateScooterLocation(newLocation.id, newLocation.location)
         }
 
@@ -94,13 +96,18 @@ class RideListFragment : Fragment(), ItemClickListener {
         _binding = null
     }
 
-    override fun onRideClicked(scooterId: String) {
+    override fun onStop() {
+        super.onStop()
+        //adapter.stopListening()
+    }
+
+    override fun onRideClicked(scooterId: String?) {
         findNavController().navigate(
-            RideListFragmentDirections.showUpdateRide(scooterId)
+            RideListFragmentDirections.showUpdateRide(scooterId!!)
         )
     }
 
-    override fun onRideLongClicked(scooterId: String) {
+    override fun onRideLongClicked(scooterId: String?) {
         /*ridesDB.deleteScooter(scooterId)
         Toast.makeText(
             context,

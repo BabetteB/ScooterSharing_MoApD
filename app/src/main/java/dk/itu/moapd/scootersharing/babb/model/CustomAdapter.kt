@@ -1,5 +1,6 @@
 package dk.itu.moapd.scootersharing.babb.model
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
@@ -13,7 +14,7 @@ class ScooterHolder(
     private val binding: ListItemRideBinding,
     private val itemClickListener: ItemClickListener
 ) : RecyclerView.ViewHolder(binding.root){
-    fun bind (scooter : Scooter) {
+    fun bind (scooter : Scooter, position: Int) {
         with (binding) {
             scooterName.text = scooter.name
             scooterLocation.text = scooter.location
@@ -22,7 +23,6 @@ class ScooterHolder(
             cardView.setOnClickListener {
                 itemClickListener.onRideClicked(scooter.name)
             }
-
             cardView.setOnLongClickListener {
                 itemClickListener.onRideLongClicked(scooter.name)
                 true
@@ -42,14 +42,15 @@ class CustomAdapter(private val itemClickListener: ItemClickListener,
         parent: ViewGroup,
         viewType: Int
     ) : ScooterHolder {
+        Log.d("CustomAdapter", "Creating a new ViewHolder.")
+
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemRideBinding.inflate(inflater, parent, false)
         return ScooterHolder(binding, itemClickListener)
     }
 
     override fun onBindViewHolder(holder: ScooterHolder, position: Int, scooter : Scooter) {
-        holder.bind(scooter)
+        holder.bind(scooter, position)
     }
-
 
 }

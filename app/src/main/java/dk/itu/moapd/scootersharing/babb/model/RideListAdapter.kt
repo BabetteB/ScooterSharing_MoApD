@@ -16,11 +16,11 @@ class RideHolder(
              scooterLastUpdate.text = scooter.lastUpdateTimeStamp.toString()
 
              cardView.setOnClickListener {
-                 itemClickListener.onRideClicked(scooter.name)
+                 //itemClickListener.onRideClicked(scooter.name)
              }
 
              cardView.setOnLongClickListener {
-                 itemClickListener.onRideLongClicked(scooter.name)
+                 //itemClickListener.onRideLongClicked(scooter.name)
                  true
              }
 

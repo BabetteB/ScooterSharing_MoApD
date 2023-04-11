@@ -23,7 +23,6 @@ import java.util.*
 
 class StartRideFragment : Fragment() {
 
-    private var count = 0u
 
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
@@ -37,8 +36,8 @@ class StartRideFragment : Fragment() {
     companion object{
         private val TAG = StartRideFragment::class.qualifiedName
         private lateinit var DATABASE_URL: String
-        const val REQUEST_KEY_NEW_SCOOTER = "REQUEST_KEY_NEW_SCOOTER"
-        const val BUNDLE_KEY_NEW_SCOOTER = "BUNDLE_KEY_NEW_SCOOTER"
+        //const val REQUEST_KEY_NEW_SCOOTER = "REQUEST_KEY_NEW_SCOOTER"
+        //const val BUNDLE_KEY_NEW_SCOOTER = "BUNDLE_KEY_NEW_SCOOTER"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +82,7 @@ class StartRideFragment : Fragment() {
         val name = binding.informationInput.nameInput.text.toString().trim()
         val location = binding.informationInput.locationInput.text.toString().trim()
 
-        val scooter = Scooter(getNewId(), name, location)
+        val scooter = Scooter(UUID.randomUUID(), name, location)
 
         addNewScooterInDatabase(scooter)
     }
@@ -112,10 +111,6 @@ class StartRideFragment : Fragment() {
         }
     }
 
-    private fun getNewId() : UInt {
-        count += 1u
-        return count
-    }
 
 
 }

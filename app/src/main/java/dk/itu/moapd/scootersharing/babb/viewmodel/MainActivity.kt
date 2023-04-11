@@ -25,33 +25,25 @@ package dk.itu.moapd.scootersharing.babb.viewmodel
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
-import androidx.activity.viewModels
-import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.Query
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
-import dk.itu.moapd.scootersharing.babb.RideListFragment
 import dk.itu.moapd.scootersharing.babb.databinding.ActivityMainBinding
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
 import dk.itu.moapd.scootersharing.babb.model.*
-import java.util.UUID
 
 
 
 /**
  * The MainActivity is the sole activity, used for storing the MainFragment
  */
-class MainActivity : AppCompatActivity(), ItemClickListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
     private lateinit var DATABASE_URL: String
@@ -66,10 +58,8 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     private lateinit var auth : FirebaseAuth
 
     companion object {
-        val TAG = "MAINACTIVITY"
-
         lateinit var database: DatabaseReference
-
+        lateinit var currentUser : FirebaseUser
     }
 
     /**
@@ -87,6 +77,7 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
 
+
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
 
@@ -95,21 +86,19 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
         navController = navHostFragment.navController
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
         setupWithNavController(bottomNav, navController)
-
         setSupportActionBar(findViewById(R.id.main_toolbar))
 
     }
 
 
-
     override fun onStart() {
         super.onStart()
 
-
         if (auth.currentUser == null)
             startLoginActivity()
+
+        currentUser = auth.currentUser!!
     }
 
 
@@ -121,51 +110,6 @@ class MainActivity : AppCompatActivity(), ItemClickListener {
     }
 
 
-    private fun updateScooterLocation(location : String) {
-        auth.currentUser?.let {
-            database.child("scooters")
-                .child(it.uid)
-                .child("location")
-                .setValue(location)
-        }
-    }
-
-
-
-    private fun deleteScooter(scooterRef : DatabaseReference) {
-        //TODO: add method for checking this
-        auth.currentUser?.let { user ->
-            val uid = database.child("scooters")
-                .child(user.uid)
-                .push()
-                .key
-
-            // Insert the object in the database.
-            uid?.let {
-                database.child("scooters")
-                    .child(user.uid)
-                    .child(it)
-                    .setValue(null)//TODO: find a way to use removeValue() insted (have to reference location of the data but how?)
-                    .addOnSuccessListener {
-                        // Write was successful!
-                        // ...
-                    }
-                    .addOnFailureListener {
-                        // Write failed
-                        // ...
-                    }
-            }
-        }
-    }
-
-
-    override fun onRideClicked(scooterId: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onRideLongClicked(scooterId: String) {
-        TODO("Not yet implemented")
-    }
 
 
 }
