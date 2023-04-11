@@ -45,9 +45,10 @@ import java.util.UUID
  */
 @IgnoreExtraProperties
 data class Scooter (
-    val id : UUID? = null,
+    val id : String? = null,
     var name : String? = null,
     var location : String? = null,
+    var reserved : Boolean? = null,
     var createdAt : Long? = null,
     var lastUpdateTimeStamp : Date? = null  ) {
 

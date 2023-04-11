@@ -36,8 +36,6 @@ class StartRideFragment : Fragment() {
     companion object{
         private val TAG = StartRideFragment::class.qualifiedName
         private lateinit var DATABASE_URL: String
-        //const val REQUEST_KEY_NEW_SCOOTER = "REQUEST_KEY_NEW_SCOOTER"
-        //const val BUNDLE_KEY_NEW_SCOOTER = "BUNDLE_KEY_NEW_SCOOTER"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +43,6 @@ class StartRideFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
-
-
 
         Log.d(TAG, "fragment created")
     }
@@ -82,7 +78,7 @@ class StartRideFragment : Fragment() {
         val name = binding.informationInput.nameInput.text.toString().trim()
         val location = binding.informationInput.locationInput.text.toString().trim()
 
-        val scooter = Scooter(UUID.randomUUID(), name, location)
+        val scooter = Scooter(UUID.randomUUID().toString(), name, location, false,0L, Calendar.getInstance().time)
 
         addNewScooterInDatabase(scooter)
     }

@@ -12,11 +12,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentUpdateRideBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import java.util.*
 
 class UpdateRideFragment : Fragment() {
+
+    private lateinit var auth : FirebaseAuth
+    private lateinit var database : DatabaseReference
 
     private var _binding : FragmentUpdateRideBinding? = null
     private val binding
@@ -28,14 +36,16 @@ class UpdateRideFragment : Fragment() {
 
     companion object{
         private val TAG = UpdateRideFragment::class.qualifiedName
+        private lateinit var DATABASE_URL: String
         const val REQUEST_KEY_UPDATED_SCOOTER_LOCATION = "REQUEST_KEY_UPDATED_SCOOTER_LOCATION"
-        const val BUNDLE_KEY_UPDATED_SCOOTER_LOCATION = "BUNDLE_KEY_UPDATED_SCOOTER_LOCATION"
+        //const val BUNDLE_KEY_UPDATED_SCOOTER_LOCATION = "BUNDLE_KEY_UPDATED_SCOOTER_LOCATION"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        Log.d(TAG, "The scooter name is ${args.rideName}")
+        auth = FirebaseAuth.getInstance()
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
+        database = Firebase.database(DATABASE_URL).reference
     }
 
     override fun onCreateView(
@@ -54,21 +64,19 @@ class UpdateRideFragment : Fragment() {
 
         with(binding) {
             informationInput.nameInput.apply {
-                setText(args.rideName)
+                setText("wait")
                 setTextColor(Color.parseColor("#9c9c9c"))
                 isEnabled = false
             }
 
             buttonUpdateRide.setOnClickListener {
-                Toast.makeText(
-                    binding.root.context,
-                    "Location updated",
-                    Toast.LENGTH_SHORT
-                ).show()
                 val newLocation = checkNotNull(informationInput.locationInput.text.toString().trim())
+
+                updateLocation(newLocation)
+
                 setFragmentResult(
                     REQUEST_KEY_UPDATED_SCOOTER_LOCATION, bundleOf(
-                        BUNDLE_KEY_UPDATED_SCOOTER_LOCATION to Scooter(UUID.randomUUID(), args.rideName, newLocation)
+                        //BUNDLE_KEY_UPDATED_SCOOTER_LOCATION to Scooter(UUID.randomUUID().toString(), args.rideName, newLocation)
                     )
                 )
                 navController.popBackStack()
@@ -78,6 +86,30 @@ class UpdateRideFragment : Fragment() {
                 navController.popBackStack()
             }
 
+        }
+    }
+
+
+    private fun updateLocation(newLoc : String) {
+        auth.currentUser?.let { user ->
+            database.child("scooters")
+                .child("id")
+                .child("location")
+                .setValue(newLoc)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "Scooter created",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "An error occurred. Scooter not created",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
     }
 

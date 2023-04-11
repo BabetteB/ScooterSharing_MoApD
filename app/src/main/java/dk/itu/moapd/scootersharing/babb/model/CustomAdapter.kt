@@ -9,22 +9,24 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import dk.itu.moapd.scootersharing.babb.RideListFragmentDirections
 import dk.itu.moapd.scootersharing.babb.databinding.ListItemRideBinding
+import java.util.*
 
 class ScooterHolder(
     private val binding: ListItemRideBinding,
     private val itemClickListener: ItemClickListener
 ) : RecyclerView.ViewHolder(binding.root){
-    fun bind (scooter : Scooter, position: Int) {
+    fun bind (scooter : Scooter) {
         with (binding) {
+
             scooterName.text = scooter.name
             scooterLocation.text = scooter.location
             scooterLastUpdate.text = scooter.lastUpdateTimeStamp.toString()
 
             cardView.setOnClickListener {
-                itemClickListener.onRideClicked(scooter.name)
+                itemClickListener.onRideClicked(scooter.id!!, scooter.name!!)
             }
             cardView.setOnLongClickListener {
-                itemClickListener.onRideLongClicked(scooter.name)
+                itemClickListener.onRideLongClicked(scooter.id)
                 true
             }
 
@@ -50,7 +52,7 @@ class CustomAdapter(private val itemClickListener: ItemClickListener,
     }
 
     override fun onBindViewHolder(holder: ScooterHolder, position: Int, scooter : Scooter) {
-        holder.bind(scooter, position)
+        holder.bind(scooter)
     }
 
 }

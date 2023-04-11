@@ -23,7 +23,9 @@
         android:label="UpdateRideFragment"
         tools:layout="@layout/fragment_update_ride">
         <argument
-            android:name="rideName"
+            android:name="scooterId"
+            app:argType="string" />
+        <argument android:name="scooterName"
             app:argType="string" />
     </fragment>
     <fragment

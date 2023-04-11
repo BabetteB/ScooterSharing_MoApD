@@ -57,12 +57,12 @@ class RideListFragment : Fragment(), ItemClickListener {
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
                 .setQuery(query, Scooter::class.java)
-                .setLifecycleOwner(this)
+                //.setLifecycleOwner(this)
                 .build()
 
-        //adapter = CustomAdapter(this, options)
+        adapter = CustomAdapter(this, options)
 
-        //updateBinding(adapter)
+        updateBinding(adapter)
         return binding.root
     }
 
@@ -74,7 +74,7 @@ class RideListFragment : Fragment(), ItemClickListener {
 
     override fun onStart() {
         super.onStart()
-        //adapter.startListening()
+        adapter.startListening()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -98,12 +98,12 @@ class RideListFragment : Fragment(), ItemClickListener {
 
     override fun onStop() {
         super.onStop()
-        //adapter.stopListening()
+        adapter.stopListening()
     }
 
-    override fun onRideClicked(scooterId: String?) {
+    override fun onRideClicked(scooterId: String, scooterName : String) {
         findNavController().navigate(
-            RideListFragmentDirections.showUpdateRide(scooterId!!)
+            RideListFragmentDirections.showUpdateRide(scooterId, scooterName)
         )
     }
 
