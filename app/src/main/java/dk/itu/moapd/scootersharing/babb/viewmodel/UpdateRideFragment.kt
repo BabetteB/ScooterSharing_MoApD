@@ -64,21 +64,14 @@ class UpdateRideFragment : Fragment() {
 
         with(binding) {
             informationInput.nameInput.apply {
-                setText("wait")
+                setText(args.scooterName)
                 setTextColor(Color.parseColor("#9c9c9c"))
                 isEnabled = false
             }
 
             buttonUpdateRide.setOnClickListener {
                 val newLocation = checkNotNull(informationInput.locationInput.text.toString().trim())
-
                 updateLocation(newLocation)
-
-                setFragmentResult(
-                    REQUEST_KEY_UPDATED_SCOOTER_LOCATION, bundleOf(
-                        //BUNDLE_KEY_UPDATED_SCOOTER_LOCATION to Scooter(UUID.randomUUID().toString(), args.rideName, newLocation)
-                    )
-                )
                 navController.popBackStack()
             }
 
@@ -91,26 +84,34 @@ class UpdateRideFragment : Fragment() {
 
 
     private fun updateLocation(newLoc : String) {
-        auth.currentUser?.let { user ->
-            database.child("scooters")
-                .child("id")
-                .child("location")
-                .setValue(newLoc)
-                .addOnSuccessListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "Scooter created",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "An error occurred. Scooter not created",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        if (newLoc != "") {
+            auth.currentUser?.let { user ->
+                database.child("scooters")
+                    .child(args.scooterId)
+                    .child("location")
+                    .setValue(newLoc)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            binding.root.context,
+                            "Scooter location updated",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    .addOnFailureListener {
+                        failToast()
+                    }
+            }
+        } else {
+            failToast()
         }
+    }
+
+    private fun failToast () {
+        Toast.makeText(
+            binding.root.context,
+            "An error occurred. Scooter location not updated",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
 }

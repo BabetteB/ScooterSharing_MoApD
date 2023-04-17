@@ -48,16 +48,22 @@ class RideListFragment : Fragment(), ItemClickListener {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
+        with (binding) {
+            floatingActionButton.setOnClickListener {
+                findNavController().navigate(
+                    RideListFragmentDirections.showStartRide()
+                )
+            }
+        }
+
         // get all scooters and sort by location
         val query = database
             .child("scooters")
-            //.child(scooter.id)
-        //.orderByChild("location")
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
                 .setQuery(query, Scooter::class.java)
-                //.setLifecycleOwner(this)
+                .setLifecycleOwner(this)
                 .build()
 
         adapter = CustomAdapter(this, options)
@@ -75,20 +81,6 @@ class RideListFragment : Fragment(), ItemClickListener {
     override fun onStart() {
         super.onStart()
         adapter.startListening()
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setFragmentResultListener(
-            UpdateRideFragment.REQUEST_KEY_UPDATED_SCOOTER_LOCATION
-        ) {
-                _, _ ->
-            //val newLocation = bundle.getSerializable(UpdateRideFragment.BUNDLE_KEY_UPDATED_SCOOTER_LOCATION) as Scooter
-            //ridesDB.updateScooterLocation(newLocation.id, newLocation.location)
-        }
-
-
     }
 
     override fun onDestroyView() {
