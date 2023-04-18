@@ -15,4 +15,11 @@
         <item name="android:statusBarColor">#E91E63</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="Theme.ScooterSharing.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.ScooterSharing.AppBarOverlay"
+        parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.ScooterSharing.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

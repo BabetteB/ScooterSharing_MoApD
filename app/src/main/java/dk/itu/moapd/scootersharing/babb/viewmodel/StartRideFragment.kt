@@ -44,7 +44,7 @@ class StartRideFragment : Fragment() {
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
 
-        Log.d(TAG, "fragment created")
+        Log.d(TAG, "StartRideFragment created")
     }
 
     override fun onCreateView(

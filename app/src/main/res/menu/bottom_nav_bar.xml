@@ -14,6 +14,12 @@
         android:title="Map"/>
 
     <item
+        android:id="@+id/cameraFragment"
+        android:enabled="true"
+        android:icon="@drawable/camera"
+        android:title="Camera"/>
+
+    <item
         android:id="@+id/scooterFragment"
         android:enabled="true"
         android:icon="@drawable/scooter"
