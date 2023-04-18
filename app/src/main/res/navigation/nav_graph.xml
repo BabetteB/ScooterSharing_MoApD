@@ -23,7 +23,9 @@
         android:label="UpdateRideFragment"
         tools:layout="@layout/fragment_update_ride">
         <argument
-            android:name="rideName"
+            android:name="scooterId"
+            app:argType="string" />
+        <argument android:name="scooterName"
             app:argType="string" />
     </fragment>
     <fragment
@@ -49,6 +51,11 @@
             android:id="@+id/create_new_scooter"
             app:destination="@id/startRideFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="dk.itu.moapd.scootersharing.babb.viewmodel.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
 </navigation>
 
 

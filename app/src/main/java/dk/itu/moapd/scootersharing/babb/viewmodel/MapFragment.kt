@@ -14,22 +14,23 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import dk.itu.moapd.scootersharing.babb.R
+import dk.itu.moapd.scootersharing.babb.databinding.FragmentMapBinding
+import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 
-class MapFragment : Fragment() {
+class MapFragment : OnMapReadyCallback, Fragment() {
 
-    private val callback = OnMapReadyCallback { googleMap ->
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
-         */
-        val sydney = LatLng(-34.0, 151.0)
-        googleMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+    private var _binding: FragmentMapBinding? = null
+    private val binding
+        get() = checkNotNull(_binding){
+            "Cannot access binding."
+        }
+
+    private lateinit var googleMap: GoogleMap
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+
     }
 
     override fun onCreateView(
@@ -37,11 +38,25 @@ class MapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        _binding = FragmentMapBinding.inflate(inflater, container, false)
+
+        //TODO : se https://github.com/fabricionarcizo/moapd2023/blob/main/lecture09/09-2_GoogleMaps/app/src/main/java/dk/itu/moapd/googlemaps/MainActivity.kt
+        /*val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.google_maps) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+
+        with (binding) {
+            mapView.getMapAsync(this@MapFragment)
+        }*/
+
+        return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
+    override fun onMapReady(map: GoogleMap) {
+        map?.let {
+            googleMap = it
+        }
     }
+
 }

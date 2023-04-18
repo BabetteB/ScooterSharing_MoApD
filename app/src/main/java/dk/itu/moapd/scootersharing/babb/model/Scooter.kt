@@ -45,8 +45,12 @@ import java.util.UUID
  */
 @IgnoreExtraProperties
 data class Scooter (
-    val id : UInt,
-    var name : String,
-    var location : String,
-    var createdAt : Long = 0L,
-    var lastUpdateTimeStamp : Date = Calendar.getInstance().time ) : Serializable
+    val id : String? = null,
+    var name : String? = null,
+    var location : String? = null,
+    var reserved : Boolean? = null,
+    var createdAt : Long? = null,
+    var lastUpdateTimeStamp : Date? = null  ) {
+
+}
+
