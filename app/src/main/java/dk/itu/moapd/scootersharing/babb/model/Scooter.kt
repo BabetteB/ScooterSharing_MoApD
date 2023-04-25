@@ -24,6 +24,7 @@
  */
 package dk.itu.moapd.scootersharing.babb.model
 
+import android.widget.Chronometer
 import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 import java.sql.Timestamp
@@ -50,7 +51,10 @@ data class Scooter (
     var location : String? = null,
     var reserved : Boolean? = null,
     var createdAt : Long? = null,
-    var lastUpdateTimeStamp : Date? = null  ) {
+    var lastUpdateTimeStamp : Date? = null,
+    var assignedToUserID : String? = null,
+    var startRideTime : Chronometer? = null
+) {
 
 }
 
