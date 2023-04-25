@@ -16,6 +16,9 @@
         <action
             android:id="@+id/show_start_ride"
             app:destination="@id/startRideFragment" />
+        <action
+            android:id="@+id/show_active_ride"
+            app:destination="@id/scooterFragment" />
     </fragment>
     <fragment
         android:id="@+id/updateRideFragment"

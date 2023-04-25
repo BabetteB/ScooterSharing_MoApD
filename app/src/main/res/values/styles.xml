@@ -19,6 +19,7 @@
 
     <style name="subsubtitle">
         <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#333333</item>
     </style>
 
     <style name="buttonLarge">
