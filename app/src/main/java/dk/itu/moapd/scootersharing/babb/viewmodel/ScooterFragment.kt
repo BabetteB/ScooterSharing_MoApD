@@ -46,11 +46,7 @@ class ScooterFragment : Fragment() {
 
 
         with (binding) {
-            buttonNewScooter.setOnClickListener {
-                findNavController().navigate(
-                    ScooterFragmentDirections.createNewScooter()
-                )
-            }
+
         }
     }
 
