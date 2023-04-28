@@ -37,8 +37,6 @@ class UpdateRideFragment : Fragment() {
     companion object{
         private val TAG = UpdateRideFragment::class.qualifiedName
         private lateinit var DATABASE_URL: String
-        const val REQUEST_KEY_UPDATED_SCOOTER_LOCATION = "REQUEST_KEY_UPDATED_SCOOTER_LOCATION"
-        //const val BUNDLE_KEY_UPDATED_SCOOTER_LOCATION = "BUNDLE_KEY_UPDATED_SCOOTER_LOCATION"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -27,6 +27,7 @@ class StartRideFragment : Fragment() {
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
 
+
     private var _binding : FragmentStartRideBinding? = null
     private val binding
         get() = checkNotNull(_binding) {

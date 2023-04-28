@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.RideListFragment
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentHistoryBinding
@@ -35,13 +37,15 @@ class HistoryFragment : Fragment() {
     companion object{
         const val TAG = "HistoryFragment"
         private lateinit var adapter : HistoryAdapter
+        private lateinit var DATABASE_URL : String
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "Instance created.")
 
-        database = vm.getDB()
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
+        database = Firebase.database(DATABASE_URL).reference
         auth = FirebaseAuth.getInstance()
     }
 

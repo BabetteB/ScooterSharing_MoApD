@@ -16,6 +16,14 @@
         <action
             android:id="@+id/show_start_ride"
             app:destination="@id/startRideFragment" />
+        <action
+            android:id="@+id/show_active_ride"
+            app:destination="@id/scooterFragment">
+            <argument
+                android:name="scooter"
+                app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
+                app:nullable="true" />
+        </action>
     </fragment>
     <fragment
         android:id="@+id/updateRideFragment"
@@ -47,9 +55,10 @@
         android:id="@+id/scooterFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
         android:label="ScooterFragment" >
-        <action
-            android:id="@+id/create_new_scooter"
-            app:destination="@id/startRideFragment" />
+        <argument
+            android:name="scooter"
+            app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"

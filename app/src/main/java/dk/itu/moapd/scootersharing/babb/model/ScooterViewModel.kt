@@ -1,6 +1,8 @@
 package dk.itu.moapd.scootersharing.babb.model
 
+import android.R
 import android.util.Log
+import android.widget.Chronometer
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -9,13 +11,37 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import dk.itu.moapd.scootersharing.babb.viewmodel.MainActivity
 
+
 class ScooterViewModel : ViewModel() {
     private lateinit var scooters : ArrayList<Scooter>
-
+    private var userScooter : Scooter? = null
 
     companion object{
         private const val TAG = "ScooterViewModel"
     }
+
+    fun getUserScooter() : Scooter? {
+        return userScooter
+    }
+
+    fun setUserScooter(scooter: Scooter, userID : String){
+        userScooter = scooter
+        scooter.assignedToUserID = userID
+    }
+
+    fun userScooterStartTime() {
+
+    }
+
+    fun userScooterStopTime(){
+
+    }
+
+    fun removeUserScooter(){
+        userScooter?.assignedToUserID = null
+        userScooter = null
+    }
+
 
     fun getCurrentUser() : FirebaseUser? {
         return MainActivity.currentUser
