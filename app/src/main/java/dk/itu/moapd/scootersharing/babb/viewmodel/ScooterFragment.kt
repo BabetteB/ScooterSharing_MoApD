@@ -27,7 +27,6 @@ import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import dk.itu.moapd.scootersharing.babb.model.ScooterViewModel
-import dk.itu.moapd.scootersharing.babb.model.StopWatch
 import java.time.Duration
 import java.util.*
 import kotlin.collections.HashMap
@@ -72,9 +71,6 @@ class ScooterFragment : Fragment() {
     ): View? {
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
 
-        serviceIntent = Intent(activity, StopWatch::class.java)
-        activity?.registerReceiver(updateTime, IntentFilter(StopWatch.TIMER_UPDATED))
-
         scooter = args.scooter
 
         with (binding) {
@@ -92,9 +88,11 @@ class ScooterFragment : Fragment() {
             } else {
                 Log.d(TAG, "Scooter : $scooter")
 
+
+
                 activeScooterButtonEnd.isEnabled = false
                 activeScooterButtonPause.isEnabled = false
-                activeScooterTime.text = scooter?.elapsedTime.toString()
+
 
                 activeScooterPrice.text = "100 DKK"
 
@@ -115,7 +113,6 @@ class ScooterFragment : Fragment() {
             }
 
             activeScooterButtonPause.setOnClickListener {
-                scooter?.elapsedTime?.startStopTimer(timerStarted, serviceIntent, time)
             }
 
             activeScooterButtonEnd.setOnClickListener {
@@ -128,7 +125,6 @@ class ScooterFragment : Fragment() {
     }
 
     private fun endRide() {
-        scooter?.elapsedTime?.stopTimer(serviceIntent)
         timerStarted = false
 
         auth.currentUser?.let { user ->
@@ -158,7 +154,6 @@ class ScooterFragment : Fragment() {
 
         scooter?.apply {
             reserved = true
-            elapsedTime?.startTimer(serviceIntent, time)
         }
 
         binding.apply {
@@ -167,29 +162,6 @@ class ScooterFragment : Fragment() {
             activeScooterButtonPause.isEnabled = true
         }
     }
-
-    private val updateTime: BroadcastReceiver = object : BroadcastReceiver()
-    {
-        override fun onReceive(context: Context, intent: Intent)
-        {
-            time = intent.getDoubleExtra(StopWatch.TIME_EXTRA, 0.0)
-            binding.activeScooterTime.text = getTimeStringFromDouble(time)
-        }
-    }
-
-    private fun getTimeStringFromDouble(time: Double): String
-    {
-        val resultInt = time.roundToInt()
-        val hours = resultInt % 86400 / 3600
-        val minutes = resultInt % 86400 % 3600 / 60
-        val seconds = resultInt % 86400 % 3600 % 60
-
-        return makeTimeString(hours, minutes, seconds)
-    }
-
-    private fun makeTimeString(hour: Int, min: Int, sec: Int): String = String.format("%02d:%02d:%02d", hour, min, sec)
-
-
 
 
 

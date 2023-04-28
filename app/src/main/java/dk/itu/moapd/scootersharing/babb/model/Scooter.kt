@@ -53,8 +53,7 @@ data class Scooter (
     var reserved : Boolean? = null,
     var createdAt : Long? = null,
     var lastUpdateTimeStamp : Date? = null,
-    var assignedToUserID : String? = null,
-    var elapsedTime : StopWatch? = null
+    var assignedToUserID : String? = null
 ) : Serializable {
 
 }
