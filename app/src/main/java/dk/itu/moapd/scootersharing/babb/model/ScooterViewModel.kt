@@ -14,10 +14,10 @@ import dk.itu.moapd.scootersharing.babb.viewmodel.MainActivity
 
 class ScooterViewModel : ViewModel() {
     private lateinit var scooters : ArrayList<Scooter>
+    private var userScooter : Scooter? = null
 
     companion object{
         private const val TAG = "ScooterViewModel"
-        var userScooter : Scooter? = null
     }
 
     fun getUserScooter() : Scooter? {
@@ -27,7 +27,19 @@ class ScooterViewModel : ViewModel() {
     fun setUserScooter(scooter: Scooter, userID : String){
         userScooter = scooter
         scooter.assignedToUserID = userID
+    }
 
+    fun userScooterStartTime() {
+
+    }
+
+    fun userScooterStopTime(){
+
+    }
+
+    fun removeUserScooter(){
+        userScooter?.assignedToUserID = null
+        userScooter = null
     }
 
 

@@ -35,10 +35,8 @@ class ScooterHolder(
             }
 
             startRideButton.setOnClickListener {
-                ScooterViewModel.userScooter = scooter
-
                 binding.root.findNavController().navigate(
-                    RideListFragmentDirections.showActiveRide()
+                    RideListFragmentDirections.showActiveRide(scooter.id)
                 )
 
             }
