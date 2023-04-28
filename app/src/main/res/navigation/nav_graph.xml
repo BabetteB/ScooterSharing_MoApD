@@ -20,8 +20,8 @@
             android:id="@+id/show_active_ride"
             app:destination="@id/scooterFragment">
             <argument
-                android:name="scooterID"
-                app:argType="string"
+                android:name="scooter"
+                app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
                 app:nullable="true" />
         </action>
     </fragment>
@@ -56,8 +56,8 @@
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
         android:label="ScooterFragment" >
         <argument
-            android:name="scooterID"
-            app:argType="string"
+            android:name="scooter"
+            app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
             app:nullable="true" />
     </fragment>
     <fragment

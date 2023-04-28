@@ -56,10 +56,11 @@
                 android:layout_height="wrap_content"
                 style="@style/subsubtitle"
                 android:text="Name"/>
-            <Chronometer
+            <TextView
                 android:id="@+id/active_scooter_time"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="00:00:00"
                 style="@style/subsubtitle"/>
             <TextView
                 android:id="@+id/active_scooter_price"

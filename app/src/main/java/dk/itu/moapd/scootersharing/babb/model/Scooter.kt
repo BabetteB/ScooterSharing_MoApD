@@ -32,6 +32,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Calendar
 import java.util.Date
+import java.util.Timer
 import java.util.UUID
 
 
@@ -53,8 +54,8 @@ data class Scooter (
     var createdAt : Long? = null,
     var lastUpdateTimeStamp : Date? = null,
     var assignedToUserID : String? = null,
-    var startRideTime : Chronometer? = null
-) {
+    var elapsedTime : StopWatch? = null
+) : Serializable {
 
 }
 
