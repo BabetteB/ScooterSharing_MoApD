@@ -2,6 +2,8 @@
 
     <string name="app_name">SKRT SCOOT</string>
 
+    <string name="sign_out">Sign Out</string>
+
     <string name="scooter_name">Name:</string>
     <string name="scooter_name_input_hint">Enter scooter name</string>
     <string name="scooter_location">Location: </string>
@@ -16,6 +18,7 @@
 
     <string name="update_ride_title">Update ride </string>
     <string name="start_ride_title">Start ride</string>
+    <string name="item_ride_scooter_last_update">Reserved</string>
 
     <string name="toolbar_map_title">Map</string>
     <string name="toolbar_list_title">List</string>
@@ -24,4 +27,28 @@
 
     <string name="new_ride">New Ride</string>
     <string name="BUCKET_URL">gs://scooter-sharing-b3fdd.appspot.com</string>
+
+    <string name="frag_camera_photo_album_title">Your Photo Album</string>
+    <string name="frag_camera_photo_album_subtitle">(why you have it here we dont know, but dont judge)</string>
+    <string name="frag_camera_open_camera">New Photo</string>
+
+    <string name="frag_scooter_active">Active Ride</string>
+    <string name="frag_scooter_active_name">Name</string>
+    <string name="frag_scooter_active_time">00:00:00</string>
+    <string name="frag_scooter_active_price">Price</string>
+    <string name="frag_scooter_active_unlock">Unlock Ride</string>
+    <string name="frag_scooter_active_pause">Pause Ride</string>
+    <string name="frag_scooter_end_ride">End Ride</string>
+
+    <string name="list_item_history_name">Name</string>
+    <string name="list_item_history_from">From</string>
+    <string name="list_item_history_to">To</string>
+    <string name="list_item_history_time">Time and Date</string>
+    <string name="list_item_history_price">Price</string>
+
+    <string name="bottom_nav_list">List</string>
+    <string name="bottom_nav_map">Map</string>
+    <string name="bottom_nav_camera">Camera</string>
+    <string name="bottom_nav_scooter">Scooter</string>
+    <string name="bottom_nav_history">History</string>
 </resources>
