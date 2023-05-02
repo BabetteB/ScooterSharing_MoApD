@@ -41,22 +41,22 @@
                     android:id="@+id/history_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Name"/>
+                    android:text="@string/list_item_history_name"/>
                 <TextView
                     android:id="@+id/history_from"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="From"/>
+                    android:text="@string/list_item_history_from"/>
                 <TextView
                     android:id="@+id/history_to"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="To"/>
+                    android:text="@string/list_item_history_to"/>
                 <TextView
                     android:id="@+id/history_time"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="time and date"/>
+                    android:text="@string/list_item_history_time"/>
             </LinearLayout>
 
             <TextView
@@ -64,7 +64,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="price"
+                android:text="@string/list_item_history_price"
                 android:gravity="end"/>
 
         </LinearLayout>
