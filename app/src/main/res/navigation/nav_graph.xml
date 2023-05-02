@@ -11,19 +11,14 @@
         android:label="RideListFragment"
         tools:layout="@layout/fragment_ride_list">
         <action
+            android:id="@+id/show_qrscan"
+            app:destination="@id/qrscanFragment" />
+        <action
             android:id="@+id/show_update_ride"
             app:destination="@id/updateRideFragment" />
         <action
             android:id="@+id/show_start_ride"
             app:destination="@id/startRideFragment" />
-        <action
-            android:id="@+id/show_active_ride"
-            app:destination="@id/scooterFragment">
-            <argument
-                android:name="scooter"
-                app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
-                app:nullable="true" />
-        </action>
     </fragment>
     <fragment
         android:id="@+id/updateRideFragment"
@@ -54,8 +49,12 @@
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
         <action
+            android:id="@+id/show_qrscan"
+            app:destination="@id/qrscanFragment" />
+        <action
             android:id="@+id/add_scooter_at_location"
             app:destination="@id/startRideFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/historyFragment"
@@ -66,16 +65,24 @@
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
         android:label="ScooterFragment" >
         <argument
-            android:name="scooter"
-            app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="scooterID"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.CameraFragment"
         android:label="fragment_camera"
         tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/qrscanFragment"
+        android:name="dk.itu.moapd.scootersharing.babb.viewmodel.QrscanFragment"
+        android:label="fragment_qrscan"
+        tools:layout="@layout/fragment_qrscan" >
+        <action
+            android:id="@+id/show_scooter_frag"
+            app:destination="@id/scooterFragment" />
+    </fragment>
 </navigation>
 
 

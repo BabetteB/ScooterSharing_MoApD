@@ -111,10 +111,16 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
             it.children.forEach { s ->
                 val scot = s.getValue<Scooter>()!!
                 val marker = map.addMarker(
-                    MarkerOptions()
-                        .title(scot.name)
-                        .position(LatLng(scot.locationLat!!, scot.locationLng!!))
-
+                    if (scot.reserved == true){
+                        MarkerOptions()
+                            .title(scot.name)
+                            .position(LatLng(scot.locationLat!!, scot.locationLng!!))
+                        //todo : disable click
+                    } else {
+                        MarkerOptions()
+                            .title(scot.name)
+                            .position(LatLng(scot.locationLat!!, scot.locationLng!!))
+                    }
                 )
             }
         }
@@ -125,11 +131,14 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
 
         val title: TextView = binding.scooterTitle
         val location: TextView = binding.scooterLocation
-        val reserved : TextView = binding.scooterReserved
 
         title.text = marker.title
         location.text = "Location: " + marker.position.latitude + "," + marker.position.longitude
-
+        binding.btnScooterStartRide.setOnClickListener {
+            findNavController().navigate(
+                MapFragmentDirections.showQrscan()
+            )
+        }
     }
 
 
