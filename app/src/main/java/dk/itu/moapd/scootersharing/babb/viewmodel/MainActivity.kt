@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         setupWithNavController(bottomNav, navController)
-        setSupportActionBar(findViewById(R.id.main_toolbar))
+        setSupportActionBar(findViewById(R.id.top_toolbar))
 
     }
 
