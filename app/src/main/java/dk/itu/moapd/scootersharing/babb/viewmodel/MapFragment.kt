@@ -8,6 +8,7 @@ import android.opengl.GLSurfaceView.Renderer
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
@@ -32,7 +33,7 @@ import dk.itu.moapd.scootersharing.babb.model.ScooterLocation
 import java.util.Objects
 
 
-class MapFragment : Fragment()/*, OnMapsSdkInitializedCallback */{
+class MapFragment : Fragment(), OnMapReadyCallback  {
 
     private lateinit var database: DatabaseReference
     private lateinit var auth : FirebaseAuth
@@ -40,8 +41,8 @@ class MapFragment : Fragment()/*, OnMapsSdkInitializedCallback */{
     private lateinit var map: GoogleMap
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val defaultLocation = LatLng(-33.8523341, 151.2106085)
     private var lastKnownLocation: Location? = null
+
 
 
     private var _binding: FragmentMapBinding? = null
@@ -87,13 +88,38 @@ class MapFragment : Fragment()/*, OnMapsSdkInitializedCallback */{
     ): View {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
 
-        //val mapFragment = childFragmentManager.findFragmentById(R.id.google_maps) as SupportMapFragment?
-        //mapFragment?.getMapAsync(callback)
-        val mapFragment =
+        val mapFragment = childFragmentManager.findFragmentById(R.id.google_map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
 
         return binding.root
     }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+
+        val lat = 55.69518532166335
+        val lng = 12.550138887442337
+        val defaultLatLng = LatLng(lat, lng)
+        val zoomLevel = 15f
+
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLatLng, zoomLevel))
+
+        map.addMarker(MarkerOptions().position(defaultLatLng))
+
+
+        database.child("scooters").get().addOnSuccessListener {
+            it.children.forEach { s ->
+                val scot = s.getValue<Scooter>()!!
+                val marker = map.addMarker(
+                    MarkerOptions()
+                        .title(scot.name)
+                        .position(LatLng(scot.locationLat!!, scot.locationLng!!))
+                )
+            }
+        }
+    }
+
 
 
     /*
