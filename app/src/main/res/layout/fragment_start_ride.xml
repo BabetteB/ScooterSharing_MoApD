@@ -28,14 +28,38 @@
         android:layout_marginBottom="10dp"
         />
 
-    <!-- SCOOTER NAME -->
-    <include
-        android:id="@+id/information_input"
-        layout="@layout/scooter_info_input_layout"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/inputs_layout"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:gravity="center"/>
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        >
+
+        <EditText
+            android:id="@+id/name_input"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border"
+            android:drawableStart="@drawable/scooter"
+            android:drawablePadding="10dp"
+            android:textSize="16dp"
+            android:textColor="@color/black"
+            android:hint="@string/scooter_name_input_hint"/>
+
+        <EditText
+            android:id="@+id/address_input"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border"
+            android:drawableStart="@drawable/house"
+            android:drawablePadding="10dp"
+            android:textSize="16dp"
+            android:textColor="@color/black"
+            android:hint="Enter address"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/button_start_ride"

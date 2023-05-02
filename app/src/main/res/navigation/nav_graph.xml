@@ -41,12 +41,22 @@
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment"
         android:label="StartRideFragment"
         tools:layout="@layout/fragment_start_ride">
+        <argument
+            android:name="locationLat"
+            app:argType="float" />
+        <argument
+            android:name="locationLng"
+            app:argType="float" />
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/add_scooter_at_location"
+            app:destination="@id/startRideFragment" />
+    </fragment>
     <fragment
         android:id="@+id/historyFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.HistoryFragment"

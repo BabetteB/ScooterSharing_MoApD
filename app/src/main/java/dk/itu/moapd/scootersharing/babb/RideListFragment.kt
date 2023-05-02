@@ -54,11 +54,11 @@ class RideListFragment : Fragment(), ItemClickListener {
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
         with (binding) {
-            floatingActionButton.setOnClickListener {
+            /*floatingActionButton.setOnClickListener {
                 findNavController().navigate(
                     RideListFragmentDirections.showStartRide()
                 )
-            }
+            }*/
         }
 
         // get all scooters and sort by location
