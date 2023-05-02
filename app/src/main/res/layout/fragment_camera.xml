@@ -7,7 +7,7 @@
     tools:context=".viewmodel.CameraFragment">
 
     <TextView
-        android:id="@+id/photo_ablum_title"
+        android:id="@+id/photo_album_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
@@ -17,10 +17,10 @@
         android:text="@string/frag_camera_photo_album_title" />
 
     <TextView
-        android:id="@+id/photo_ablum_subtitle"
+        android:id="@+id/photo_album_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/photo_ablum_title"
+        app:layout_constraintTop_toBottomOf="@id/photo_album_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="@string/frag_camera_photo_album_subtitle"/>
@@ -32,7 +32,7 @@
         app:layout_constraintBottom_toTopOf="@id/button_open_camera"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/photo_ablum_subtitle"
+        app:layout_constraintTop_toBottomOf="@id/photo_album_subtitle"
         app:layout_constraintVertical_bias="0.01" />
 
     <Button
