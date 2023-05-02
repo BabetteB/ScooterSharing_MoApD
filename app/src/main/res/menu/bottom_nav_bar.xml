@@ -5,30 +5,30 @@
         android:id="@+id/rideListFragment"
         android:enabled="true"
         android:icon="@drawable/list"
-        android:title="List"/>
+        android:title="@string/bottom_nav_list"/>
 
     <item
         android:id="@+id/mapFragment"
         android:enabled="true"
         android:icon="@drawable/map"
-        android:title="Map"/>
+        android:title="@string/bottom_nav_map"/>
 
     <item
         android:id="@+id/cameraFragment"
         android:enabled="true"
         android:icon="@drawable/camera"
-        android:title="Camera"/>
+        android:title="@string/bottom_nav_camera"/>
 
     <item
         android:id="@+id/scooterFragment"
         android:enabled="true"
         android:icon="@drawable/scooter"
-        android:title="Scooter"/>
+        android:title="@string/bottom_nav_scooter"/>
 
     <item
         android:id="@+id/historyFragment"
         android:enabled="true"
         android:icon="@drawable/history"
-        android:title="History"/>
+        android:title="@string/bottom_nav_history"/>
 
 </menu>
