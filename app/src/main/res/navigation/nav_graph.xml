@@ -58,7 +58,8 @@
         <argument
             android:name="scooter"
             app:argType="dk.itu.moapd.scootersharing.babb.model.Scooter"
-            app:nullable="true" />
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"

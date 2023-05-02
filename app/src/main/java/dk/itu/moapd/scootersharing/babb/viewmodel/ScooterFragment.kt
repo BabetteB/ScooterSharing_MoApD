@@ -38,7 +38,7 @@ class ScooterFragment : Fragment() {
     private lateinit var database : DatabaseReference
     private val TAG = "ScooterFragment"
 
-    private val args : ScooterFragmentArgs by navArgs()
+    private val args : ScooterFragmentArgs? by navArgs()
     private var scooter : Scooter? = null
     private var timerStarted = false
     private lateinit var serviceIntent: Intent
@@ -70,7 +70,7 @@ class ScooterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
-        scooter = args.scooter
+        scooter = args?.scooter
 
         with (binding) {
             if (scooter == null) {
@@ -85,7 +85,10 @@ class ScooterFragment : Fragment() {
                 scooterFragmentProgressBar.visibility = View.INVISIBLE
 
             } else {
+
                 Log.d(TAG, "Scooter : $scooter")
+
+                activeScooterName.text = scooter?.name
 
                 activeScooterButtonEnd.isEnabled = false
                 activeScooterButtonPause.isEnabled = false
