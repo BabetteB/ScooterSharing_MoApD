@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -19,6 +20,7 @@ import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
+import dk.itu.moapd.scootersharing.babb.model.ScooterLocation
 import java.util.*
 
 class StartRideFragment : Fragment() {
@@ -77,9 +79,10 @@ class StartRideFragment : Fragment() {
 
     private fun createNewScooter() {
         val name = binding.informationInput.nameInput.text.toString().trim()
-        val location = binding.informationInput.locationInput.text.toString().trim()
+        val lLat = (binding.informationInput.locationInputLat.text.toString().toDouble())
+        val lLng = (binding.informationInput.locationInputLng.text.toString().toDouble())
 
-        val scooter = Scooter(UUID.randomUUID().toString(), name, location, false,0L, Calendar.getInstance().time)
+        val scooter = Scooter(UUID.randomUUID().toString(), name, lLat, lLng, false,0L, Calendar.getInstance().time)
 
         addNewScooterInDatabase(scooter)
     }

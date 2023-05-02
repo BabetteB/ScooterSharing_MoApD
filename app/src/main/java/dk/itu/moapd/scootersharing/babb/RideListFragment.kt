@@ -10,8 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
+import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
 
 
@@ -25,6 +28,7 @@ class RideListFragment : Fragment(), ItemClickListener {
 
     companion object{
         private lateinit var adapter : CustomAdapter
+        private lateinit var DATABASE_URL: String
     }
 
     private var _binding: FragmentRideListBinding? = null
@@ -36,8 +40,9 @@ class RideListFragment : Fragment(), ItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        database = vm.getDB()
         auth = FirebaseAuth.getInstance()
+        DATABASE_URL = resources.getString(R.string.DATABASE_URL)
+        database = Firebase.database(DATABASE_URL).reference
     }
 
     override fun onCreateView(

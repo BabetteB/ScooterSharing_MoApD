@@ -68,8 +68,8 @@ class UpdateRideFragment : Fragment() {
             }
 
             buttonUpdateRide.setOnClickListener {
-                val newLocation = checkNotNull(informationInput.locationInput.text.toString().trim())
-                updateLocation(newLocation)
+                //val newLocation = checkNotNull(informationInput.locationInput.text.toString().trim())
+                //updateLocation(newLocation)
                 navController.popBackStack()
             }
 

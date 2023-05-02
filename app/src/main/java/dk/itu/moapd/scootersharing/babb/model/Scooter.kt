@@ -25,6 +25,7 @@
 package dk.itu.moapd.scootersharing.babb.model
 
 import android.widget.Chronometer
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 import java.sql.Timestamp
@@ -49,7 +50,8 @@ import java.util.UUID
 data class Scooter (
     val id : String? = null,
     var name : String? = null,
-    var location : String? = null,
+    var locationLat : Double? = null,
+    var locationLng : Double? = null,
     var reserved : Boolean? = null,
     var createdAt : Long? = null,
     var lastUpdateTimeStamp : Date? = null,

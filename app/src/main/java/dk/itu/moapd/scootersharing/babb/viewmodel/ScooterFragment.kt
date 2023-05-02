@@ -70,7 +70,6 @@ class ScooterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
-
         scooter = args.scooter
 
         with (binding) {
@@ -88,11 +87,8 @@ class ScooterFragment : Fragment() {
             } else {
                 Log.d(TAG, "Scooter : $scooter")
 
-
-
                 activeScooterButtonEnd.isEnabled = false
                 activeScooterButtonPause.isEnabled = false
-
 
                 activeScooterPrice.text = "100 DKK"
 
@@ -105,7 +101,6 @@ class ScooterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         with (binding) {
             activeScooterUnlock.setOnClickListener {
@@ -129,6 +124,7 @@ class ScooterFragment : Fragment() {
 
         auth.currentUser?.let { user ->
             database.child("history")
+                .child(user.uid)
                 .child(scooter?.id.toString())
                 .setValue(scooter)
                 .addOnSuccessListener {

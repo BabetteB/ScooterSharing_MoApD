@@ -13,8 +13,8 @@ class HistoryHolder(private val binding: ListItemHistoryBinding)
     fun bind (scooter : Scooter) {
         with (binding) {
             historyName.text = scooter.name
-            historyFrom.text = scooter.location
-            historyTo.text = scooter.location
+            //historyFrom.text = scooter.location
+            //historyTo.text = scooter.location
             historyTime.text = scooter.lastUpdateTimeStamp.toString()
             historyPrice.text = "100 DKK"
         }

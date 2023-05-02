@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -23,16 +25,55 @@
                 android:textColor="@color/black"
                 android:hint="@string/scooter_name_input_hint"/>
 
+        <EditText
+            android:id="@+id/address_input"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/border"
+            android:drawableStart="@drawable/house"
+            android:drawablePadding="10dp"
+            android:textSize="16dp"
+            android:textColor="@color/black"
+            android:hint="Enter address"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
             <EditText
-                android:id="@+id/location_input"
-                android:layout_width="match_parent"
+                android:id="@+id/location_input_lat"
+                android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:background="@drawable/border"
                 android:drawableStart="@drawable/location"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/location_input_lng"
+                android:drawablePadding="10dp"
+                android:layout_marginEnd="7dp"
+                android:textSize="16dp"
+                android:textColor="@color/black"
+                android:hint="Lat"
+                android:inputType="number"
+                tools:ignore="MissingConstraints" />
+
+            <EditText
+                android:id="@+id/location_input_lng"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:background="@drawable/border"
+                android:drawableStart="@drawable/location"
+                app:layout_constraintStart_toEndOf="@id/location_input_lat"
+                app:layout_constraintEnd_toEndOf="parent"
                 android:drawablePadding="10dp"
                 android:textSize="16dp"
                 android:textColor="@color/black"
-                android:hint="@string/scooter_location_input_hint"/>
+                android:hint="Long"
+                android:inputType="number"
+                tools:ignore="MissingConstraints" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 
