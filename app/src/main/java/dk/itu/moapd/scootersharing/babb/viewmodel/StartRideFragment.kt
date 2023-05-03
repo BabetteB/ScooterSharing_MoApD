@@ -6,22 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.firebase.ui.database.FirebaseRecyclerOptions
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentStartRideBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
-import dk.itu.moapd.scootersharing.babb.model.ScooterLocation
 import java.util.*
 
 class StartRideFragment : Fragment() {
@@ -84,7 +78,7 @@ class StartRideFragment : Fragment() {
         val lLat = args.locationLat.toDouble()
         val lLng = args.locationLng.toDouble()
 
-        val scooter = Scooter(UUID.randomUUID().toString(), name, lLat, lLng, false,0L, Calendar.getInstance().time)
+        val scooter = Scooter(UUID.randomUUID().toString(), name, lLat, lLng, false,0L, Calendar.getInstance().time, null, "")
 
         addNewScooterInDatabase(scooter)
     }
