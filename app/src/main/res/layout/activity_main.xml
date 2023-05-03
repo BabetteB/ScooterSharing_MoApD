@@ -14,7 +14,14 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/top_gradient"
-        app:menu="@menu/frontpage_login_bar"/>
+        app:menu="@menu/frontpage_login_bar">
+
+        <TextView
+            style="@style/customTopTitle"
+            android:text="@string/custom_title"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_container"

@@ -14,6 +14,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">#E91E63</item>
         <!-- Customize your theme here. -->
+        <item name ="windowNoTitle">true</item>
     </style>
     <style name="Theme.ScooterSharing.NoActionBar">
         <item name="windowActionBar">false</item>
