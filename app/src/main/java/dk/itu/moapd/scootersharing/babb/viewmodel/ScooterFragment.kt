@@ -106,9 +106,6 @@ class ScooterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var x = requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
-        x?.let { Log.d(TAG, it) }
-        Log.d(TAG, "waawawa")
 
         with (binding) {
             activeScooterUnlock.setOnClickListener {
