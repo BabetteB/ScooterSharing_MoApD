@@ -1,36 +1,20 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
-import android.os.SystemClock
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Chronometer
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.registerReceiver
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
-import dk.itu.moapd.scootersharing.babb.model.ScooterViewModel
-import java.time.Duration
-import java.util.*
-import kotlin.collections.HashMap
-import kotlin.math.roundToInt
 
 class ScooterFragment : Fragment() {
 
@@ -43,6 +27,7 @@ class ScooterFragment : Fragment() {
     private var timerStarted = false
     private lateinit var serviceIntent: Intent
     private var time = 0.0
+    private var imageUrl = ""
 
     private var unlocked = false;
 
@@ -117,7 +102,7 @@ class ScooterFragment : Fragment() {
                 activeScooterUnlock.isEnabled = true
                 activeScooterButtonEnd.isEnabled = false
                 activeScooterButtonPause.isEnabled = false
-                endRide();
+                endRide()
             }
         }
     }
