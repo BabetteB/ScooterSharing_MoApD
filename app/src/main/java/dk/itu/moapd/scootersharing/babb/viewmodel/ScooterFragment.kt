@@ -129,7 +129,7 @@ class ScooterFragment : Fragment() {
 
     private fun endRide() {
         timerStarted = false
-        scooter!!.imageUrl = "waavaa wee weva"
+        scooter!!.imageUrl = BUCKET_URL + "/" + requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
 
         auth.currentUser?.let { user ->
             database.child("history")
