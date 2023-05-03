@@ -1,6 +1,7 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -25,6 +26,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentCameraBinding
+import dk.itu.moapd.scootersharing.babb.model.Image
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -47,6 +49,7 @@ class CameraFragment : Fragment() {
         private const val TAG = "CameraFragment"
         private lateinit var DATABASE_URL: String
         private lateinit var BUCKET_URL : String
+        private lateinit var photo : Image
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,6 +96,11 @@ class CameraFragment : Fragment() {
             auth.currentUser?.let {
                 val filename = Calendar.getInstance().time.toString()
                 val image = storage.reference.child("images/${it.uid}/$filename")
+                val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+                with (sharedPref.edit()) {
+                    putString("imageUri", "images/${it.uid}/$filename")
+                    apply()
+                }
                 result.data?.extras?.get("data").let {
                     val bm = result.data?.extras?.get("data") as Bitmap
                     uploadImageToBucket(bm, image)

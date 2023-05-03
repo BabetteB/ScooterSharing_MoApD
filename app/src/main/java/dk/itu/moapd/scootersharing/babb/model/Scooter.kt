@@ -48,7 +48,7 @@ data class Scooter (
     var createdAt : Long? = null,
     var lastUpdateTimeStamp : Date? = null,
     var assignedToUserID : String? = null,
-    var imageUrl :String? = null
+    var imageUrl : String? = null
 ) : Serializable {
 
 }
