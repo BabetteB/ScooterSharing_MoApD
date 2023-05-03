@@ -9,8 +9,9 @@
     <LinearLayout
             android:id="@+id/inputs_layout"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:orientation="vertical"
+            android:layout_gravity="center"
             >
 
             <EditText
@@ -23,6 +24,7 @@
                 android:drawablePadding="10dp"
                 android:textSize="16dp"
                 android:textColor="@color/black"
+                android:textColorHint="@color/dark_grey"
                 android:hint="@string/scooter_name_input_hint"/>
 
         <EditText
@@ -35,6 +37,7 @@
             android:drawablePadding="10dp"
             android:textSize="16dp"
             android:textColor="@color/black"
+            android:textColorHint="@color/dark_grey"
             android:hint="Enter address"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -54,6 +57,7 @@
                 android:layout_marginEnd="7dp"
                 android:textSize="16dp"
                 android:textColor="@color/black"
+                android:textColorHint="@color/dark_grey"
                 android:hint="Lat"
                 android:inputType="number"
                 tools:ignore="MissingConstraints" />
@@ -69,6 +73,7 @@
                 android:drawablePadding="10dp"
                 android:textSize="16dp"
                 android:textColor="@color/black"
+                android:textColorHint="@color/dark_grey"
                 android:hint="Long"
                 android:inputType="number"
                 tools:ignore="MissingConstraints" />
