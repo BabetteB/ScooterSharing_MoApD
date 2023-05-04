@@ -37,7 +37,7 @@ class SpeedometerFragment : Fragment(){
             override fun onSensorChanged(event: SensorEvent) {
                 binding.apply {
 
-                    binding.showSpeed.text = (event.values[0].normalize()-50).toString()
+                    binding.showSpeed.text = event.values[0].normalize().toString()
                 }
             }
 
