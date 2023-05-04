@@ -19,7 +19,18 @@
         <action
             android:id="@+id/show_start_ride"
             app:destination="@id/startRideFragment" />
+        <action
+            android:id="@+id/action_rideListFragment_to_speedometerFragment"
+            app:destination="@id/speedometerFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/speedometerFragment"
+        android:name="dk.itu.moapd.scootersharing.babb.viewmodel.SpeedometerFragment"
+        android:label="SpeedometerFragment"
+        tools:layout="@layout/fragment_speedometer">
+    </fragment>
+
     <fragment
         android:id="@+id/updateRideFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment"

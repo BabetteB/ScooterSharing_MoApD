@@ -14,10 +14,10 @@
         android:title="@string/bottom_nav_map"/>
 
     <item
-        android:id="@+id/cameraFragment"
+        android:id="@+id/speedometerFragment"
         android:enabled="true"
-        android:icon="@drawable/camera"
-        android:title="@string/bottom_nav_camera"/>
+        android:icon="@color/primary_pink"
+        android:title="Speedometer"/>
 
     <item
         android:id="@+id/scooterFragment"
