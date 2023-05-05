@@ -22,9 +22,16 @@ SOFTWARE.*/
 
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
@@ -59,11 +66,28 @@ class MainActivity : AppCompatActivity() {
     companion object {
         lateinit var database: DatabaseReference
         lateinit var currentUser : FirebaseUser
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            Manifest.permission.HIGH_SAMPLING_RATE_SENSORS
+        )
     }
+
+    private fun checkPermission() =
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.HIGH_SAMPLING_RATE_SENSORS) == PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this, "Camera Permission Already Granted", Toast.LENGTH_SHORT).show()
+        } else {
+            ActivityCompat.requestPermissions(this,
+                REQUIRED_PERMISSIONS,
+                REQUEST_CODE_PERMISSIONS
+            )
+        }
 
     /**
      * upon creating the instance of main activity, inflate the binding (see activity_main.xml)
      */
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,13 +95,17 @@ class MainActivity : AppCompatActivity() {
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
 
-
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
 
 
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainBinding.root)
+
+        @RequiresApi(Build.VERSION_CODES.S)
+        if (!allPermissionsGranted())
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
 
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_container) as NavHostFragment
@@ -105,7 +133,11 @@ class MainActivity : AppCompatActivity() {
         finish()
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
 
 
 }
