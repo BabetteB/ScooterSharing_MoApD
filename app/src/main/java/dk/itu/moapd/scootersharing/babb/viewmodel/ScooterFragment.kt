@@ -1,14 +1,12 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
-import android.Manifest
+
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -16,27 +14,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
-import java.lang.Float.max
-import java.lang.Float.min
+import dk.itu.moapd.scootersharing.babb.model.Scooter
+import kotlinx.coroutines.tasks.await
 import java.util.*
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 
 class ScooterFragment : Fragment() {
 
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
-    private val TAG = "ScooterFragment"
+
 
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
@@ -52,10 +51,7 @@ class ScooterFragment : Fragment() {
     private var velocity = 0f
     private var lastUpdate: Date? = null
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var time = 0.0
-
-    private var unlocked = false;
+    private var unlocked = false
 
 
     private var _binding : FragmentScooterBinding? = null
@@ -66,7 +62,7 @@ class ScooterFragment : Fragment() {
 
     companion object {
         private lateinit var DATABASE_URL: String
-        private val REQUEST_LOCATION_PERMISSION = 1
+        private const val TAG = "ScooterFragment"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +81,7 @@ class ScooterFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
         scooterID = args?.scooterID
 
@@ -142,7 +138,7 @@ class ScooterFragment : Fragment() {
                 activeScooterUnlock.isEnabled = true
                 activeScooterButtonEnd.isEnabled = false
                 activeScooterButtonPause.isEnabled = false
-                endRide();
+                endRide()
             }
         }
     }
@@ -151,9 +147,9 @@ class ScooterFragment : Fragment() {
         if (id != null) {
             database.child("scooters").child(id).get()
                 .addOnSuccessListener {d ->
-                    val m = d.getValue() as Map<String, Object>
+                    val m = d.value as Map<String, Any>
 
-                    val name = m.get("name") as String?
+                    val name = m["name"] as String?
                     enableActiveScooterFields(name)
                     setReserveScooter(true)
 
@@ -167,7 +163,7 @@ class ScooterFragment : Fragment() {
     }
 
     private fun setReserveScooter(reserved : Boolean) {
-        auth.currentUser?.let { user ->
+        auth.currentUser?.let { _ ->
             scooterID?.let {
                 database.child("scooters")
                     .child(scooterID!!)
@@ -203,24 +199,45 @@ class ScooterFragment : Fragment() {
         setReserveScooter(false)
         auth.currentUser?.let { user ->
             scooterID?.let {
-                database.child("history")
-                    .child(user.uid)
-                    .setValue(it)
-                    .addOnSuccessListener {
-                        Toast.makeText(
-                            binding.root.context,
-                            "Ride finished",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            binding.root.context,
-                            "An error occurred. Ride still active!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                getScooter(user)
             }
+        }
+    }
+
+    private fun getScooter(user : FirebaseUser) {
+        database.child("scooters").child(scooterID!!).get().addOnSuccessListener {
+            val m = it.value as Map<String, Any>
+
+            val s = Scooter(
+                id = m["id"] as String?,
+                name = m["name"] as String?,
+                locationLat = m["locationLat"] as Double?,
+                locationLng = m["locationLng"] as Double?,
+                reserved = false,
+                createdAt = m["createdAt"] as Long?,
+                assignedToUserID = null
+            )
+
+            database.child("history")
+                .child(user.uid)
+                .setValue(
+                    s
+                )
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "Ride finished",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "An error occurred. Ride still active!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
         }
     }
 
@@ -242,12 +259,12 @@ class ScooterFragment : Fragment() {
     }
 
 
+    @SuppressLint("SetTextI18n")
     private fun updateGUI() {
-        // Convert from meters per second to miles per hour.
-        val mph = (Math.round(velocity * 3600) / 1000).toDouble()
+        val kmh = ((velocity * 3600).roundToInt() / 1000).toDouble()
 
         // Update the GUI
-        handler.post { binding.activeScooterSpeed.text = velocity.toString() + "mph" }
+        handler.post { binding.activeScooterSpeed.text = "Speed ${kmh}kmh" }
     }
 
     private fun updateVelocity() {
@@ -256,7 +273,7 @@ class ScooterFragment : Fragment() {
         val timeNow = Date(System.currentTimeMillis())
         val timeDelta = timeNow.time - lastUpdate!!.time
         lastUpdate!!.time = timeNow.time
-        Log.d(TAG, "timedelta: ${timeDelta}")
+        Log.d(TAG, "time delta: $timeDelta")
         // Calculate the change in velocity at the
         // current acceleration since the last update.
         val deltaVelocity = appliedAcceleration * (timeDelta / 1000)
@@ -265,7 +282,7 @@ class ScooterFragment : Fragment() {
         // Add the velocity change to the current velocity.
         velocity += deltaVelocity
 
-        Log.d(TAG, "Updatevelocity : ${velocity}")
+        Log.d(TAG, "Update velocity : $velocity")
         //binding.activeScooterSpeed.text = "Speed : ${velocity} mph"
     }
 
@@ -273,11 +290,11 @@ class ScooterFragment : Fragment() {
         var calibration = Double.NaN
 
         override fun onSensorChanged(event: SensorEvent) {
-            var x = event.values[0].toDouble()
-            var y = event.values[1].toDouble()
-            var z = event.values[2].toDouble()
+            val x = event.values[0].toDouble()
+            val y = event.values[1].toDouble()
+            val z = event.values[2].toDouble()
 
-            var a = Math.sqrt(Math.pow(x, 2.0) + Math.pow(y, 2.0) + Math.pow(z, 2.0))
+            val a = sqrt(x.pow(2.0) + y.pow(2.0) + z.pow(2.0))
 
             if (calibration === Double.NaN) calibration = a else {
                 updateVelocity()

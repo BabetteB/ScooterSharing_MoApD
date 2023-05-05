@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -14,16 +13,10 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
-import dk.itu.moapd.scootersharing.babb.RideListFragment
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentHistoryBinding
-import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
-import dk.itu.moapd.scootersharing.babb.model.CustomAdapter
 import dk.itu.moapd.scootersharing.babb.model.HistoryAdapter
 import dk.itu.moapd.scootersharing.babb.model.Scooter
-import dk.itu.moapd.scootersharing.babb.model.ScooterViewModel
-
 class HistoryFragment : Fragment() {
-    private val vm : ScooterViewModel by activityViewModels()
 
     private lateinit var database: DatabaseReference
     private lateinit var auth : FirebaseAuth

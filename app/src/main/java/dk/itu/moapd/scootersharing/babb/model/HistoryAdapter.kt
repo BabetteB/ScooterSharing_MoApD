@@ -1,16 +1,20 @@
 package dk.itu.moapd.scootersharing.babb.model
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import dk.itu.moapd.scootersharing.babb.databinding.ListItemHistoryBinding
 import dk.itu.moapd.scootersharing.babb.databinding.ListItemRideBinding
+import dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment
 
 class HistoryHolder(private val binding: ListItemHistoryBinding)
     : RecyclerView.ViewHolder(binding.root){
     fun bind (scooter : Scooter) {
+
         with (binding) {
             historyName.text = scooter.name
             //historyFrom.text = scooter.location
