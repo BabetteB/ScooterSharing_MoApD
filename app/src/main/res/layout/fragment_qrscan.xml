@@ -14,18 +14,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/camera_result_text"/>
+        app:layout_constraintBottom_toTopOf="@+id/lin_layout"/>
 
-    <TextView
-        android:id="@+id/camera_result_text"
+
+    <LinearLayout
+        android:id="@+id/lin_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Barcode Value"/>
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/camera_result_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="Barcode Value"/>
+
+        <Button
+            android:id="@+id/btn_go_to_ride"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Continue"/>
+
+    </LinearLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -44,6 +44,8 @@ class QrscanFragment : Fragment() {
             "Oh no I died"
         }
 
+    private var scooterID : String = ""
+
     companion object {
         private const val TAG = "QrscanFragment"
         private const val CAMERA_REQUEST_CODE = 100
@@ -69,7 +71,28 @@ class QrscanFragment : Fragment() {
     ): View? {
         _binding = FragmentQrscanBinding.inflate(layoutInflater, container, false)
 
+        with(binding){
+            btnGoToRide.isEnabled = false
+            btnGoToRide.setOnClickListener {
+                if (scooterID.isBlank()){
+                    Toast.makeText(
+                        requireContext(),
+                        "Please scan a valid scooter QR code. Scanned is now: ${scooterID}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    goToScooter()
+                }
+            }
+        }
+
         return binding.root
+    }
+
+    private fun goToScooter(){
+        findNavController().navigate(
+            QrscanFragmentDirections.showScooterFrag(scooterID)
+        )
     }
 
 
@@ -143,10 +166,9 @@ class QrscanFragment : Fragment() {
                     // `rawValue` is the decoded value of the barcode
                     barcode?.rawValue?.let { value ->
                         // update our textView to show the decoded value
-                        /*findNavController().navigate(
-                            QrscanFragmentDirections.showScooterFrag(value)
-                        )*/
-                        binding.cameraResultText.text = value
+                        binding.cameraResultText.text = "Found scooter! Please continue."
+                        binding.btnGoToRide.isEnabled = true
+                        scooterID = value
                     }
                 }
                 .addOnFailureListener {
@@ -159,11 +181,6 @@ class QrscanFragment : Fragment() {
                 }
         }
     }
-
-    /*override fun onPause() {
-        super.onPause()
-        onDestroy()
-    }*/
 
 
     private fun checkCameraPermission() : Boolean {
