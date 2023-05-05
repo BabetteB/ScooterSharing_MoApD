@@ -17,8 +17,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.navigation.fragment.navArgs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -30,13 +28,11 @@ import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
-import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-import java.io.File
 
 class ScooterFragment : Fragment() {
 
@@ -99,10 +95,10 @@ class ScooterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
-        scooterID = args?.scooterID
+        scooterID = args?.sid
 
         with (binding) {
-            if (scooterID == null) {
+            if (scooterID.isNullOrBlank()) {
                 scooterFragmentTitle.text = "No scooter ride in progress"
 
                 activeScooterName.text = "Please start a ride before information can be shown."
@@ -213,7 +209,6 @@ class ScooterFragment : Fragment() {
 
     private fun endRide() {
         setReserveScooter(false)
-        scooter!!.imageUrl = BUCKET_URL + "/" + requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
         
         auth.currentUser?.let { user ->
             scooterID?.let {
@@ -235,6 +230,8 @@ class ScooterFragment : Fragment() {
                 createdAt = m["createdAt"] as Long?,
                 assignedToUserID = null
             )
+
+            s!!.imageUrl = BUCKET_URL + "/" + requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
 
             database.child("history")
                 .child(user.uid)

@@ -1,22 +1,14 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.ContentValues
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -30,9 +22,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentQrscanBinding
-import dk.itu.moapd.scootersharing.babb.databinding.FragmentStartRideBinding
 import java.util.concurrent.Executors
 
 
@@ -68,7 +58,7 @@ class QrscanFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentQrscanBinding.inflate(layoutInflater, container, false)
 
         with(binding){
@@ -77,7 +67,7 @@ class QrscanFragment : Fragment() {
                 if (scooterID.isBlank()){
                     Toast.makeText(
                         requireContext(),
-                        "Please scan a valid scooter QR code. Scanned is now: ${scooterID}",
+                        "Please scan a valid scooter QR code. Scanned is now: $scooterID",
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -113,11 +103,10 @@ class QrscanFragment : Fragment() {
 
             analysisUseCase.setAnalyzer(
                 // newSingleThreadExecutor() will let us perform analysis on a single worker thread
-                Executors.newSingleThreadExecutor(),
-                { imageProxy ->
-                    processImageProxy(scanner, imageProxy)
-                }
-            )
+                Executors.newSingleThreadExecutor()
+            ) { imageProxy ->
+                processImageProxy(scanner, imageProxy)
+            }
 
             // setting up the preview use case
             val previewUseCase = Preview.Builder()

@@ -61,15 +61,6 @@
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.HistoryFragment"
         android:label="HistoryFragment" />
     <fragment
-        android:id="@+id/scooterFragment"
-        android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
-        android:label="ScooterFragment" >
-        <argument
-            android:name="scooterID"
-            app:argType="string"
-            app:nullable="true" />
-    </fragment>
-    <fragment
         android:id="@+id/cameraFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.CameraFragment"
         android:label="fragment_camera"
@@ -81,7 +72,20 @@
         tools:layout="@layout/fragment_qrscan" >
         <action
             android:id="@+id/show_scooter_frag"
-            app:destination="@id/scooterFragment" />
+            app:destination="@id/scooterFragment" >
+            <argument
+                android:name="sid"
+                app:argType="string"/>
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/scooterFragment"
+        android:name="dk.itu.moapd.scootersharing.babb.viewmodel.ScooterFragment"
+        android:label="ScooterFragment" >
+        <argument
+            android:name="sid"
+            app:argType="string"
+            android:defaultValue=""/>
     </fragment>
 </navigation>
 

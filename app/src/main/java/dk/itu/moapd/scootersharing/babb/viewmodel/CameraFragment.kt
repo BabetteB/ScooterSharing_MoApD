@@ -49,7 +49,6 @@ class CameraFragment : Fragment() {
         private const val TAG = "CameraFragment"
         private lateinit var DATABASE_URL: String
         private lateinit var BUCKET_URL : String
-        private lateinit var photo : Image
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

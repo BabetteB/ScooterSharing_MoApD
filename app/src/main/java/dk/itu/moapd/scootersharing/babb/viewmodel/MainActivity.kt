@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
     private lateinit var DATABASE_URL: String
-    private lateinit var vm : ScooterViewModel
 
 
     /**
@@ -72,7 +71,6 @@ class MainActivity : AppCompatActivity() {
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
 
-        vm = ScooterViewModel()
 
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()

@@ -19,7 +19,6 @@ import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
 
 
 class RideListFragment : Fragment(), ItemClickListener {
-    private val vm : ScooterViewModel by activityViewModels()
 
     private lateinit var database: DatabaseReference
     private lateinit var auth : FirebaseAuth
