@@ -1,7 +1,9 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
 import android.app.Activity.RESULT_OK
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
@@ -9,10 +11,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -24,11 +26,14 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentCameraBinding
+import dk.itu.moapd.scootersharing.babb.model.Image
 import java.io.ByteArrayOutputStream
 import java.util.*
 
 
 class CameraFragment : Fragment() {
+
+    private val REQUEST_CAMERA_PERMISSION = 1099
 
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
@@ -44,6 +49,7 @@ class CameraFragment : Fragment() {
         private const val TAG = "CameraFragment"
         private lateinit var DATABASE_URL: String
         private lateinit var BUCKET_URL : String
+        private lateinit var photo : Image
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +72,7 @@ class CameraFragment : Fragment() {
 
         with (binding) {
             imagesRecyclerView.layoutManager = GridLayoutManager(context, 3)
+            checkPermission()
 
             buttonOpenCamera.setOnClickListener {
                 val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
@@ -89,6 +96,11 @@ class CameraFragment : Fragment() {
             auth.currentUser?.let {
                 val filename = Calendar.getInstance().time.toString()
                 val image = storage.reference.child("images/${it.uid}/$filename")
+                val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
+                with (sharedPref.edit()) {
+                    putString("imageUri", "images/${it.uid}/$filename")
+                    apply()
+                }
                 result.data?.extras?.get("data").let {
                     val bm = result.data?.extras?.get("data") as Bitmap
                     uploadImageToBucket(bm, image)
@@ -118,6 +130,12 @@ class CameraFragment : Fragment() {
         }
     }
 
+    private fun checkPermission() =
+        if (ActivityCompat.checkSelfPermission(this.requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+            Toast.makeText(this.requireContext(), "Camera Permission Already Granted", Toast.LENGTH_SHORT).show()
+        } else {
+            ActivityCompat.requestPermissions(this.requireActivity(), arrayOf<String>(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+        }
 
 
 

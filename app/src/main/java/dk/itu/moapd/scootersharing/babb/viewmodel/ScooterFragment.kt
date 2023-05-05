@@ -7,35 +7,47 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.core.content.FileProvider
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.navigation.fragment.navArgs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
-
+import java.io.File
 
 class ScooterFragment : Fragment() {
 
+    val REQUEST_IMAGE_CAPTURE = 1069
+
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
+    private lateinit var storage : FirebaseStorage
 
+    private lateinit var outPutDirectory: File
+    private lateinit var fileProvider: FileProvider
 
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
@@ -63,6 +75,8 @@ class ScooterFragment : Fragment() {
     companion object {
         private lateinit var DATABASE_URL: String
         private const val TAG = "ScooterFragment"
+        private lateinit var BUCKET_URL : String
+        private const val REQUEST_CODE_PERMISSIONS = 10
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,6 +89,8 @@ class ScooterFragment : Fragment() {
 
         lastUpdate = Date(System.currentTimeMillis())
 
+        BUCKET_URL = resources.getString(R.string.BUCKET_URL)
+        storage = Firebase.storage(BUCKET_URL)
 
     }
 
@@ -197,6 +213,8 @@ class ScooterFragment : Fragment() {
 
     private fun endRide() {
         setReserveScooter(false)
+        scooter!!.imageUrl = BUCKET_URL + "/" + requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
+        
         auth.currentUser?.let { user ->
             scooterID?.let {
                 getScooter(user)
