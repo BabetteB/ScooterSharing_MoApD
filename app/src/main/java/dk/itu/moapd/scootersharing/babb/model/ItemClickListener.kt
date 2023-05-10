@@ -4,6 +4,5 @@ interface ItemClickListener {
 
     fun onRideClicked(scooterId: String, scooterName : String)
 
-    fun onRideLongClicked(scooterId : String?)
 
 }

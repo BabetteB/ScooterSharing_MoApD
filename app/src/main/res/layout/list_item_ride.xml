@@ -32,17 +32,21 @@
             android:scaleType="centerCrop"
             android:contentDescription="Din mor"
             app:layout_constraintTop_toTopOf="parent"
-
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/scooter_info"
             tools:ignore="MissingConstraints" />
 
         <LinearLayout
             android:id="@+id/scooter_info"
-            android:layout_width="wrap_content"
+            android:layout_width="175dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/scooter_pic">
+            app:layout_constraintStart_toEndOf="@+id/scooter_pic"
+            app:layout_constraintEnd_toStartOf="@id/start_ride_button"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <!-- Title, secondary and supporting text -->
             <TextView
@@ -74,18 +78,23 @@
                 android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?android:attr/textColorSecondary"
             />
+
+
         </LinearLayout>
 
             <Button
                 android:id="@+id/start_ride_button"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:text="@string/start_ride_button"
-                android:layout_gravity="bottom"
+                android:layout_gravity="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/scooter_info"
                 app:layout_constraintTop_toBottomOf="@+id/scooter_info"
                 />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

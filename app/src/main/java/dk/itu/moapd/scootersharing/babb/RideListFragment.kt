@@ -52,14 +52,6 @@ class RideListFragment : Fragment(), ItemClickListener {
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        with (binding) {
-            /*floatingActionButton.setOnClickListener {
-                findNavController().navigate(
-                    RideListFragmentDirections.showStartRide()
-                )
-            }*/
-        }
-
         // get all scooters and sort by location
         val query = database
             .child("scooters")
@@ -103,16 +95,5 @@ class RideListFragment : Fragment(), ItemClickListener {
         )
     }
 
-    override fun onRideLongClicked(scooterId: String?) {
-        /*ridesDB.deleteScooter(scooterId)
-        Toast.makeText(
-            context,
-            "$scooterId deleted",
-            Toast.LENGTH_SHORT
-        ).show()
-
-        var adapter = makeAdapter(ridesDB.getRidesList(), this)
-        updateBinding(adapter)*/
-    }
 
 }

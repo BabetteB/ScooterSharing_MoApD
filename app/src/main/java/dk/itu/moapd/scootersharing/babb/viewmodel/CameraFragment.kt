@@ -1,5 +1,6 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
+import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,8 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -38,6 +41,8 @@ class CameraFragment : Fragment() {
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
+
+    private val args : CameraFragmentArgs? by navArgs()
 
     private var _binding : FragmentCameraBinding? = null
     private val binding
@@ -68,19 +73,16 @@ class CameraFragment : Fragment() {
     ): View {
         _binding = FragmentCameraBinding.inflate(layoutInflater, container, false)
 
-
-        with (binding) {
-            imagesRecyclerView.layoutManager = GridLayoutManager(context, 3)
-            checkPermission()
-
-            buttonOpenCamera.setOnClickListener {
-                val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                photoLauncher.launch(photoIntent)
-            }
+        if (checkPermission()){
+            val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            photoLauncher.launch(photoIntent)
+            findNavController().popBackStack(R.id.rideListFragment, false)
+        } else {
+            requestPermission()
         }
-
         return binding.root
     }
+
 
     private val photoLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -94,10 +96,10 @@ class CameraFragment : Fragment() {
             // Create the folder structure save the selected image in the bucket.
             auth.currentUser?.let {
                 val filename = Calendar.getInstance().time.toString()
-                val image = storage.reference.child("images/${it.uid}/$filename")
+                val image = storage.reference.child("scooterImages/${args?.sid}/$filename")
                 val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
                 with (sharedPref.edit()) {
-                    putString("imageUri", "images/${it.uid}/$filename")
+                    putString("imageUri", "scooterImages/${args?.sid}/$filename")
                     apply()
                 }
                 result.data?.extras?.get("data").let {
@@ -129,15 +131,55 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun checkPermission() =
-        if (ActivityCompat.checkSelfPermission(this.requireContext(), android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this.requireContext(), "Camera Permission Already Granted", Toast.LENGTH_SHORT).show()
-        } else {
-            ActivityCompat.requestPermissions(this.requireActivity(), arrayOf<String>(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+    private fun setImageReferenceKey(filename : String) {
+        args?.sid?.let {
+            database.child("scooters")
+                .child(it)
+                .child("imageUri")
+                .setValue (filename)
+                .addOnSuccessListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "added image",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(
+                        binding.root.context,
+                        "An error occurred. Image has not been uploaded!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
         }
+    }
 
 
+    private fun checkPermission() =
+        ActivityCompat.checkSelfPermission(
+            this.requireContext(), android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
 
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this.requireActivity(),
+            arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_CAMERA_PERMISSION
+        )
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray) {
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                photoLauncher.launch(photoIntent)
+            }
+        }
+    }
 
 
 

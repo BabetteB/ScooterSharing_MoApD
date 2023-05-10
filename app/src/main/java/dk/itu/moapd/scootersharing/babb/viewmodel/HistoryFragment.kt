@@ -50,13 +50,14 @@ class HistoryFragment : Fragment() {
         binding.historyRecyclerView.layoutManager = LinearLayoutManager(context)
 
         val query = database
-            .child("history")
+            .child("history").child(auth?.uid.toString())
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()
                 .setQuery(query, Scooter::class.java)
                 .setLifecycleOwner(this)
                 .build()
+
 
         adapter = HistoryAdapter(options)
         binding.historyRecyclerView.adapter = adapter

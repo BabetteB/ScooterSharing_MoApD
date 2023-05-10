@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,8 +12,11 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -37,8 +41,11 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
     private lateinit var auth : FirebaseAuth
 
     private lateinit var map: GoogleMap
+    private var cameraPosition: CameraPosition? = null
 
+    private val defaultLocation = LatLng(55.69518532166335, 12.550138887442337)
     private var lastKnownLocation: Location? = null
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
     private var _binding: FragmentMapBinding? = null
@@ -53,6 +60,12 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
         private const val ALL_PERMISSIONS_RESULT = 1011
         private lateinit var DATABASE_URL: String
 
+        private const val DEFAULT_ZOOM = 15
+
+        // Keys for storing activity state.
+        private const val KEY_CAMERA_POSITION = "camera_position"
+        private const val KEY_LOCATION = "location"
+
 
     }
 
@@ -62,6 +75,13 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
         auth = FirebaseAuth.getInstance()
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
+
+        if (savedInstanceState != null) {
+            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION)
+            cameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION)
+        }
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
 
     }
 
@@ -80,23 +100,22 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
         return binding.root
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        map?.let { map ->
+            outState.putParcelable(KEY_CAMERA_POSITION, map.cameraPosition)
+            outState.putParcelable(KEY_LOCATION, lastKnownLocation)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        enableMyLocation()
 
-        val lat = 55.69518532166335
-        val lng = 12.550138887442337
-        val defaultLatLng = LatLng(lat, lng)
-        val zoomLevel = 15f
-
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLatLng, zoomLevel))
-
-        map.addMarker(MarkerOptions().position(defaultLatLng))
-
-
+        map.addMarker(MarkerOptions().position(defaultLocation))
 
         setMapLongClick(map)
         setPoiClick(map)
-        enableMyLocation()
 
         map.setOnMarkerClickListener(OnMarkerClickListener { marker ->
             map.animateCamera(CameraUpdateFactory.newLatLng(marker.position))
@@ -140,8 +159,6 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
             )
         }
     }
-
-
 
     private fun setMapLongClick(map: GoogleMap) {
         map.setOnMapLongClickListener { latLng ->
@@ -187,14 +204,43 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
 
     private fun enableMyLocation() {
         if (checkPermission()) {
-            map.isMyLocationEnabled = true
-        }
-        else {
+            updateLocationUI()
+            val locationResult = fusedLocationProviderClient.lastLocation
+            locationResult.addOnCompleteListener(this.requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    // Set the map's camera position to the current location of the device.
+                    lastKnownLocation = task.result
+                    if (lastKnownLocation != null) {
+                        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                            LatLng(lastKnownLocation!!.latitude,
+                                lastKnownLocation!!.longitude), DEFAULT_ZOOM.toFloat()))
+                    }
+                } else {
+                    Log.d(TAG, "Current location is null. Using defaults.")
+                    Log.e(TAG, "Exception: %s", task.exception)
+                    map?.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(defaultLocation, DEFAULT_ZOOM.toFloat()))
+                    map?.uiSettings?.isMyLocationButtonEnabled = false
+                }
+            }
+        } else {
             ActivityCompat.requestPermissions(
                 this.requireActivity(),
                 arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
+        }
+    }
+
+    private fun updateLocationUI() {
+        if (map == null) {
+            return
+        }
+        try {
+            map?.isMyLocationEnabled = true
+            map?.uiSettings?.isMyLocationButtonEnabled = true
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
         }
     }
 

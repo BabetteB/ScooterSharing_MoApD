@@ -29,10 +29,6 @@ class ScooterHolder(
             cardView.setOnClickListener {
                 itemClickListener.onRideClicked(scooter.id!!, scooter.name!!)
             }
-            cardView.setOnLongClickListener {
-                itemClickListener.onRideLongClicked(scooter.id)
-                true
-            }
 
             startRideButton.setOnClickListener {
                 binding.root.findNavController().navigate(

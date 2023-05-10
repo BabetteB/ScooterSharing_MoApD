@@ -17,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -83,7 +84,7 @@ class ScooterFragment : Fragment() {
         database = Firebase.database(DATABASE_URL).reference
         Log.d(TAG, "fragment created")
 
-        lastUpdate = Date(System.currentTimeMillis())
+        //lastUpdate = Date(System.currentTimeMillis())
 
         BUCKET_URL = resources.getString(R.string.BUCKET_URL)
         storage = Firebase.storage(BUCKET_URL)
@@ -110,7 +111,7 @@ class ScooterFragment : Fragment() {
                 scooterFragmentProgressBar.visibility = View.INVISIBLE
 
             } else {
-
+                lastUpdate = Calendar.getInstance().time
                 tryFindScooter(scooterID)
 
                 sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager?
@@ -160,11 +161,9 @@ class ScooterFragment : Fragment() {
             database.child("scooters").child(id).get()
                 .addOnSuccessListener {d ->
                     val m = d.value as Map<String, Any>
-
                     val name = m["name"] as String?
                     enableActiveScooterFields(name)
                     setReserveScooter(true)
-
 
                 }.addOnFailureListener {
                     Log.d(TAG, "could not get scooter from db")
@@ -187,11 +186,7 @@ class ScooterFragment : Fragment() {
                         Log.d(TAG, "Scooter reserved")
                     }
                     .addOnFailureListener {
-                        Toast.makeText(
-                            binding.root.context,
-                            "An error occurred. Scooter is not reserved!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        shortToast("Scooter reserved = ${reserved}!")
                     }
             }
         }
@@ -205,19 +200,20 @@ class ScooterFragment : Fragment() {
 
     }
 
-
-
     private fun endRide() {
         setReserveScooter(false)
         
         auth.currentUser?.let { user ->
             scooterID?.let {
-                getScooter(user)
+                uploadRidetoDB(user)
+                findNavController().navigate(
+                    ScooterFragmentDirections.takePictureEndRide(it)
+                )
             }
         }
     }
 
-    private fun getScooter(user : FirebaseUser) {
+    private fun uploadRidetoDB(user : FirebaseUser) {
         database.child("scooters").child(scooterID!!).get().addOnSuccessListener {
             val m = it.value as Map<String, Any>
 
@@ -228,32 +224,30 @@ class ScooterFragment : Fragment() {
                 locationLng = m["locationLng"] as Double?,
                 reserved = false,
                 createdAt = m["createdAt"] as Long?,
+                lastUpdateTimeStamp = Calendar.getInstance().time,
                 assignedToUserID = null
             )
 
-            s!!.imageUrl = BUCKET_URL + "/" + requireActivity().getPreferences(Context.MODE_PRIVATE).getString("imageUri", null)
-
             database.child("history")
                 .child(user.uid)
-                .setValue(
-                    s
-                )
+                .child(scooterID!!)
+                .setValue(s)
                 .addOnSuccessListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "Ride finished",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    shortToast("Ride finished")
                 }
                 .addOnFailureListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "An error occurred. Ride still active!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    shortToast("An error occurred. Ride still active!")
                 }
 
         }
+    }
+
+    private fun shortToast(text : String) {
+        Toast.makeText(
+            binding.root.context,
+            text,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun startRide() {
@@ -284,11 +278,11 @@ class ScooterFragment : Fragment() {
 
     private fun updateVelocity() {
         // Calculate how long this acceleration has been applied.
-        Log.d(TAG, "lastUpdate: ${lastUpdate?.time}")
+        //Log.d(TAG, "lastUpdate: ${lastUpdate?.time}")
         val timeNow = Date(System.currentTimeMillis())
         val timeDelta = timeNow.time - lastUpdate!!.time
         lastUpdate!!.time = timeNow.time
-        Log.d(TAG, "time delta: $timeDelta")
+        //Log.d(TAG, "time delta: $timeDelta")
         // Calculate the change in velocity at the
         // current acceleration since the last update.
         val deltaVelocity = appliedAcceleration * (timeDelta / 1000)
@@ -297,7 +291,7 @@ class ScooterFragment : Fragment() {
         // Add the velocity change to the current velocity.
         velocity += deltaVelocity
 
-        Log.d(TAG, "Update velocity : $velocity")
+        //Log.d(TAG, "Update velocity : $velocity")
         //binding.activeScooterSpeed.text = "Speed : ${velocity} mph"
     }
 

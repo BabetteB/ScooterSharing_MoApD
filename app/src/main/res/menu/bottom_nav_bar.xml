@@ -13,11 +13,11 @@
         android:icon="@drawable/map"
         android:title="@string/bottom_nav_map"/>
 
-    <item
+   <!-- <item
         android:id="@+id/cameraFragment"
         android:enabled="true"
         android:icon="@drawable/camera"
-        android:title="@string/bottom_nav_camera"/>
+        android:title="@string/bottom_nav_camera"/>-->
 
     <item
         android:id="@+id/scooterFragment"

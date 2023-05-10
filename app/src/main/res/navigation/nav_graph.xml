@@ -16,9 +16,6 @@
         <action
             android:id="@+id/show_update_ride"
             app:destination="@id/updateRideFragment" />
-        <action
-            android:id="@+id/show_start_ride"
-            app:destination="@id/startRideFragment" />
     </fragment>
     <fragment
         android:id="@+id/updateRideFragment"
@@ -64,7 +61,12 @@
         android:id="@+id/cameraFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.CameraFragment"
         android:label="fragment_camera"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera" >
+        <argument
+            android:name="sid"
+            app:argType="string"
+            android:defaultValue=""/>
+    </fragment>
     <fragment
         android:id="@+id/qrscanFragment"
         android:name="dk.itu.moapd.scootersharing.babb.viewmodel.QrscanFragment"
@@ -86,6 +88,13 @@
             android:name="sid"
             app:argType="string"
             android:defaultValue=""/>
+        <action
+            android:id="@+id/take_picture_end_ride"
+            app:destination="@id/cameraFragment" >
+            <argument
+                android:name="sid"
+                app:argType="string"/>
+        </action>
     </fragment>
 </navigation>
 
