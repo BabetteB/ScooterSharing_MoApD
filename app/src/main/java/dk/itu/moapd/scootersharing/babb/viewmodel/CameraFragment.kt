@@ -42,6 +42,8 @@ class CameraFragment : Fragment() {
     private lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
 
+    private var savedImageSuccess : Boolean = false
+
     private val args : CameraFragmentArgs? by navArgs()
 
     private var _binding : FragmentCameraBinding? = null
@@ -58,6 +60,8 @@ class CameraFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d(TAG, "Creating $TAG")
         auth = FirebaseAuth.getInstance()
 
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
@@ -73,10 +77,14 @@ class CameraFragment : Fragment() {
     ): View {
         _binding = FragmentCameraBinding.inflate(layoutInflater, container, false)
 
+        Log.d(TAG, "Permission : ${checkPermission()}")
         if (checkPermission()){
             val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            Log.d(TAG, "Launching photo intent")
             photoLauncher.launch(photoIntent)
-            findNavController().popBackStack(R.id.rideListFragment, false)
+
+
+
         } else {
             requestPermission()
         }
@@ -87,7 +95,14 @@ class CameraFragment : Fragment() {
     private val photoLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        Log.d(TAG, "PhotoLaunch result : $result")
         photoResult(result)
+        if (savedImageSuccess) {
+            findNavController().popBackStack(R.id.rideListFragment, false)
+        } else {
+            shortToast("An error occurred.")
+            findNavController().popBackStack()
+        }
     }
 
 
@@ -95,11 +110,11 @@ class CameraFragment : Fragment() {
         if (result.resultCode == RESULT_OK) {
             // Create the folder structure save the selected image in the bucket.
             auth.currentUser?.let {
-                val filename = Calendar.getInstance().time.toString()
-                val image = storage.reference.child("scooterImages/${args?.sid}/$filename")
+                Log.d(TAG, "finding path for image")
+                val image = storage.reference.child("scooterImages/${args?.sid}")
                 val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
                 with (sharedPref.edit()) {
-                    putString("imageUri", "scooterImages/${args?.sid}/$filename")
+                    putString("imageUri", "scooterImages/${args?.sid}")
                     apply()
                 }
                 result.data?.extras?.get("data").let {
@@ -108,17 +123,12 @@ class CameraFragment : Fragment() {
                 }
             }
         } else {
-            Toast.makeText(
-                binding.root.context,
-                "An error occurred. Image not registered.",
-                Toast.LENGTH_SHORT
-            ).show()
+            shortToast("An error occurred. Image not registered.")
         }
     }
 
     private fun uploadImageToBucket(bitmap: Bitmap, image: StorageReference) {
         Log.d(TAG, "uploading image to bucket")
-
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data: ByteArray = baos.toByteArray()
@@ -126,6 +136,7 @@ class CameraFragment : Fragment() {
         // Upload the original image.
         image.putBytes(data).addOnSuccessListener {
             Log.d(TAG, "Image uploaded")
+            savedImageSuccess = true
         }.addOnFailureListener{
             Log.d(TAG, "Image not uploaded. Exception: $it")
         }
@@ -138,22 +149,21 @@ class CameraFragment : Fragment() {
                 .child("imageUri")
                 .setValue (filename)
                 .addOnSuccessListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "added image",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    shortToast("added image")
                 }
                 .addOnFailureListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "An error occurred. Image has not been uploaded!",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    shortToast("An error occurred. Image has not been uploaded!")
                 }
         }
     }
 
+    private fun shortToast(text : String) {
+        Toast.makeText(
+            binding.root.context,
+            text,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 
     private fun checkPermission() =
         ActivityCompat.checkSelfPermission(
@@ -161,6 +171,7 @@ class CameraFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
 
     private fun requestPermission() {
+        Log.d(TAG, "Requesting permission")
         ActivityCompat.requestPermissions(
             this.requireActivity(),
             arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),

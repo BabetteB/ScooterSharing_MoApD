@@ -24,7 +24,11 @@
  */
 package dk.itu.moapd.scootersharing.babb.model
 
+import android.graphics.BitmapFactory
+import android.util.Log
 import com.google.firebase.database.IgnoreExtraProperties
+import com.google.firebase.storage.FirebaseStorage
+import java.io.File
 import java.io.Serializable
 import java.util.Date
 

@@ -183,10 +183,10 @@ class ScooterFragment : Fragment() {
                         reserved
                     )
                     .addOnSuccessListener {
-                        Log.d(TAG, "Scooter reserved")
+                        Log.d(TAG, "Scooter reserved = ${reserved}!")
                     }
                     .addOnFailureListener {
-                        shortToast("Scooter reserved = ${reserved}!")
+                        shortToast("FAIL : Scooter reserved = ${reserved}!")
                     }
             }
         }
