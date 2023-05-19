@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import dk.itu.moapd.scootersharing.babb.model.NoParkingZones
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentMapBinding
 import dk.itu.moapd.scootersharing.babb.model.Scooter
 import dk.itu.moapd.scootersharing.babb.R
@@ -35,7 +36,7 @@ import java.util.*
 
 class MapFragment : Fragment(), OnMapReadyCallback  {
 
-    private val REQUEST_LOCATION_PERMISSION = 1
+    private val REQUEST_LOCATION_PERMISSION = 1001
 
     private lateinit var database: DatabaseReference
     private lateinit var auth : FirebaseAuth
@@ -57,7 +58,6 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
     companion object{
         private val TAG = MapFragment::class.java.simpleName
 
-        private const val ALL_PERMISSIONS_RESULT = 1011
         private lateinit var DATABASE_URL: String
 
         private const val DEFAULT_ZOOM = 15
@@ -126,6 +126,8 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
             true
         })
 
+        NoParkingZones.addDefaultNoParkingZones(map)
+
         database.child("scooters").get().addOnSuccessListener {
             it.children.forEach { s ->
                 val scot = s.getValue<Scooter>()!!
@@ -164,8 +166,21 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
         map.setOnMapLongClickListener { latLng ->
             val lat = latLng.latitude
             val lng = latLng.longitude
-            createRideDialog(lat, lng)
+            if (NoParkingZones.isLatLngWithinPolygon(latLng)){
+                cannotCreateRideDialog()
+            } else {
+                createRideDialog(lat, lng)
+            }
         }
+    }
+
+    private fun cannotCreateRideDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Cannot create a new scooter in this area")
+            .setMessage("This is a no parking zone, hence it is not possible to add a scooter to this area")
+            .setNeutralButton("Ok") { dialog, which ->
+                // Respond to neutral button press
+            }.show()
     }
 
     private fun createRideDialog(lat : Double, lng : Double) {

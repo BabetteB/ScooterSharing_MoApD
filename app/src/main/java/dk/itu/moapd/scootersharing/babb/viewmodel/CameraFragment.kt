@@ -19,7 +19,6 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
@@ -29,33 +28,30 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentCameraBinding
-import dk.itu.moapd.scootersharing.babb.model.Image
 import java.io.ByteArrayOutputStream
 import java.util.*
 
 
 class CameraFragment : Fragment() {
 
-    private val REQUEST_CAMERA_PERMISSION = 1099
+    val REQUEST_CAMERA_PERMISSION = 1099
 
-    private lateinit var auth : FirebaseAuth
-    private lateinit var database : DatabaseReference
-    private lateinit var storage : FirebaseStorage
+    lateinit var auth: FirebaseAuth
+    lateinit var database: DatabaseReference
+    lateinit var storage: FirebaseStorage
 
-    private var savedImageSuccess : Boolean = false
+    val args: CameraFragmentArgs? by navArgs()
 
-    private val args : CameraFragmentArgs? by navArgs()
-
-    private var _binding : FragmentCameraBinding? = null
-    private val binding
+    var _binding: FragmentCameraBinding? = null
+    val binding
         get() = checkNotNull(_binding) {
             "Oh no I died"
         }
 
-    companion object{
-        private const val TAG = "CameraFragment"
-        private lateinit var DATABASE_URL: String
-        private lateinit var BUCKET_URL : String
+    companion object {
+        const val TAG = "CameraFragment"
+        lateinit var DATABASE_URL: String
+        lateinit var BUCKET_URL: String
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,42 +74,38 @@ class CameraFragment : Fragment() {
         _binding = FragmentCameraBinding.inflate(layoutInflater, container, false)
 
         Log.d(TAG, "Permission : ${checkPermission()}")
-        if (checkPermission()){
-            val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            Log.d(TAG, "Launching photo intent")
-            photoLauncher.launch(photoIntent)
-
-
-
+        if (checkPermission()) {
+            startPhotoIntent()
         } else {
             requestPermission()
         }
         return binding.root
     }
 
+    fun startPhotoIntent() {
+        val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        Log.d(TAG, "Launching photo intent")
+        photoLauncher.launch(photoIntent)
+    }
 
-    private val photoLauncher = registerForActivityResult(
+
+    var photoLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         Log.d(TAG, "PhotoLaunch result : $result")
         photoResult(result)
-        if (savedImageSuccess) {
-            findNavController().popBackStack(R.id.rideListFragment, false)
-        } else {
-            shortToast("An error occurred.")
-            findNavController().popBackStack()
-        }
+        findNavController().popBackStack(R.id.rideListFragment, false)
     }
 
 
-    private fun photoResult(result: ActivityResult) {
+    fun photoResult(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             // Create the folder structure save the selected image in the bucket.
             auth.currentUser?.let {
                 Log.d(TAG, "finding path for image")
                 val image = storage.reference.child("scooterImages/${args?.sid}")
                 val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
-                with (sharedPref.edit()) {
+                with(sharedPref.edit()) {
                     putString("imageUri", "scooterImages/${args?.sid}")
                     apply()
                 }
@@ -127,7 +119,7 @@ class CameraFragment : Fragment() {
         }
     }
 
-    private fun uploadImageToBucket(bitmap: Bitmap, image: StorageReference) {
+    fun uploadImageToBucket(bitmap: Bitmap, image: StorageReference) {
         Log.d(TAG, "uploading image to bucket")
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
@@ -136,28 +128,12 @@ class CameraFragment : Fragment() {
         // Upload the original image.
         image.putBytes(data).addOnSuccessListener {
             Log.d(TAG, "Image uploaded")
-            savedImageSuccess = true
-        }.addOnFailureListener{
+        }.addOnFailureListener {
             Log.d(TAG, "Image not uploaded. Exception: $it")
         }
     }
 
-    private fun setImageReferenceKey(filename : String) {
-        args?.sid?.let {
-            database.child("scooters")
-                .child(it)
-                .child("imageUri")
-                .setValue (filename)
-                .addOnSuccessListener {
-                    shortToast("added image")
-                }
-                .addOnFailureListener {
-                    shortToast("An error occurred. Image has not been uploaded!")
-                }
-        }
-    }
-
-    private fun shortToast(text : String) {
+    fun shortToast(text: String) {
         Toast.makeText(
             binding.root.context,
             text,
@@ -165,12 +141,12 @@ class CameraFragment : Fragment() {
         ).show()
     }
 
-    private fun checkPermission() =
+    fun checkPermission() =
         ActivityCompat.checkSelfPermission(
             this.requireContext(), android.Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
-    private fun requestPermission() {
+    fun requestPermission() {
         Log.d(TAG, "Requesting permission")
         ActivityCompat.requestPermissions(
             this.requireActivity(),
@@ -183,15 +159,15 @@ class CameraFragment : Fragment() {
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
-        grantResults: IntArray) {
+        grantResults: IntArray
+    ) {
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
             if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
-                val photoIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                photoLauncher.launch(photoIntent)
+                startPhotoIntent()
             }
         }
     }
-
-
-
 }
+
+
+

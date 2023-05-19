@@ -6,9 +6,16 @@ plugins {
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
+
 android {
     namespace 'dk.itu.moapd.scootersharing.babb'
     compileSdk 33
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 
     Properties properties = new Properties()
 
@@ -66,6 +73,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.maps.android:android-maps-utils:2.2.0'
     implementation 'com.google.firebase:firebase-database-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
     implementation 'androidx.core:core-ktx:1.10.0'
@@ -76,8 +84,40 @@ dependencies {
     implementation "androidx.camera:camera-camera2:1.2.2"
     implementation "androidx.camera:camera-lifecycle:1.2.2"
     implementation "androidx.camera:camera-view:1.2.2"
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
+
+    // AndroidX Test dependencies
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    // Mockito and Mockito-Kotlin dependencies
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-inline:3.12.4'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+
+    // Firebase Test Lab dependencies (if needed for Firebase-related tests)
+    androidTestImplementation 'com.google.firebase:firebase-firestore-testing:23.0.0'
+    androidTestImplementation 'com.google.firebase:firebase-auth-testing:23.0.0'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation 'org.robolectric:robolectric:4.9'
+    androidTestImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // AndroidX Test Runner and Rules
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+
+    // AndroidX Test Espresso dependencies for UI testing
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-accessibility:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-remote:3.5.1'
+
+    // AndroidX Test UI Automator for cross-app UI testing
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+
+    // AndroidX Test Orchestrator for test orchestration and parallel execution
+    androidTestUtil 'androidx.test:orchestrator:1.4.2'
+
 }

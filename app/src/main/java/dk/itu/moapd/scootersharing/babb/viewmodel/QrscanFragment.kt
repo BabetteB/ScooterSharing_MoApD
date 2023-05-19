@@ -22,6 +22,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentQrscanBinding
 import java.util.concurrent.Executors
 
@@ -31,7 +32,7 @@ class QrscanFragment : Fragment() {
     private var _binding : FragmentQrscanBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
-            "Oh no I died"
+            findNavController().popBackStack(R.id.rideListFragment, false)
         }
 
     private var scooterID : String = ""
@@ -40,12 +41,6 @@ class QrscanFragment : Fragment() {
         private const val TAG = "QrscanFragment"
         private const val CAMERA_REQUEST_CODE = 100
     }
-
-
-    //private var barcodeScannerOptions : BarcodeScannerOptions? = null
-    //private var barcodeScanner: BarcodeScanner? = null
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,7 +107,13 @@ class QrscanFragment : Fragment() {
             val previewUseCase = Preview.Builder()
                 .build()
                 .also {
-                    it.setSurfaceProvider(binding.cameraView.surfaceProvider)
+                    try {
+                        it.setSurfaceProvider(binding.cameraView.surfaceProvider)
+                    } catch (e : java.lang.Exception) {
+                        Log.e(TAG, e.message.orEmpty())
+                        findNavController().popBackStack(R.id.rideListFragment, false)
+                    }
+
                 }
 
             // configure to use the back camera
@@ -128,9 +129,7 @@ class QrscanFragment : Fragment() {
             } catch (illegalStateException: IllegalStateException) {
                 // If the use case has already been bound to another lifecycle or method is not called on main thread.
                 Log.e(TAG, illegalStateException.message.orEmpty())
-            } catch (illegalArgumentException: IllegalArgumentException) {
-                // If the provided camera selector is unable to resolve a camera to be used for the given use cases.
-                Log.e(TAG, illegalArgumentException.message.orEmpty())
+                findNavController().popBackStack(R.id.rideListFragment, false)
             }
         }, ContextCompat.getMainExecutor(this.requireContext()))
 
