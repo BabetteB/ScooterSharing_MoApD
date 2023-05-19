@@ -7,16 +7,15 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.firebase.auth.FirebaseAuth
@@ -35,32 +34,19 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
+@Suppress("DEPRECATED_IDENTITY_EQUALS")
 class ScooterFragment : Fragment() {
-
-    val REQUEST_IMAGE_CAPTURE = 1069
 
     private lateinit var auth : FirebaseAuth
     private lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
 
-    private lateinit var outPutDirectory: File
-    private lateinit var fileProvider: FileProvider
-
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
     private var timerStarted = false
 
-
-    private var handler = Handler()
-
-    private var sensorManager: SensorManager? = null
-
-    private var appliedAcceleration = 0f
-    private var currentAcceleration = 0f
-    private var velocity = 0f
-    private var lastUpdate: Date? = null
-
     private var unlocked = false
+    private lateinit var speedCalculator: SpeedCalculator
 
 
     private var _binding : FragmentScooterBinding? = null
@@ -73,7 +59,6 @@ class ScooterFragment : Fragment() {
         private lateinit var DATABASE_URL: String
         private const val TAG = "ScooterFragment"
         private lateinit var BUCKET_URL : String
-        private const val REQUEST_CODE_PERMISSIONS = 10
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,9 +67,6 @@ class ScooterFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
-        Log.d(TAG, "fragment created")
-
-        //lastUpdate = Date(System.currentTimeMillis())
 
         BUCKET_URL = resources.getString(R.string.BUCKET_URL)
         storage = Firebase.storage(BUCKET_URL)
@@ -111,30 +93,29 @@ class ScooterFragment : Fragment() {
                 scooterFragmentProgressBar.visibility = View.INVISIBLE
 
             } else {
-                lastUpdate = Calendar.getInstance().time
+                //lastUpdate = Calendar.getInstance().time
                 tryFindScooter(scooterID)
+                speedCalculator = SpeedCalculator(requireContext())
 
-                sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager?
-                val accelerometer: Sensor = sensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-
-                sensorManager!!.registerListener(
-                    sensorEventListener,
-                    accelerometer,
-                    SensorManager.SENSOR_DELAY_FASTEST
-                )
-
-                val updateTimer = Timer("velocityUpdate")
-                updateTimer.scheduleAtFixedRate(object : TimerTask() {
+                val t = Timer()
+                val tt: TimerTask = object : TimerTask() {
                     override fun run() {
-                        updateGUI()
+                        //Log.d(TAG, "Updating speed: $speed")
+                        updateSpeedText()
                     }
-                }, 0, 1000)
+                }
+                t.scheduleAtFixedRate(tt, 0, 1000)
 
             }
         }
 
         return binding.root
     }
+
+    private fun updateSpeedText() {
+        binding.activeScooterSpeed.text = String.format("%.2f", speedCalculator.getSpeed())
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -183,10 +164,10 @@ class ScooterFragment : Fragment() {
                         reserved
                     )
                     .addOnSuccessListener {
-                        Log.d(TAG, "Scooter reserved = ${reserved}!")
+                        Log.d(TAG, "Scooter reserved")
                     }
                     .addOnFailureListener {
-                        shortToast("FAIL : Scooter reserved = ${reserved}!")
+                        shortToast("Scooter reserved = ${reserved}!")
                     }
             }
         }
@@ -202,7 +183,7 @@ class ScooterFragment : Fragment() {
 
     private fun endRide() {
         setReserveScooter(false)
-        
+
         auth.currentUser?.let { user ->
             scooterID?.let {
                 uploadRidetoDB(user)
@@ -268,54 +249,72 @@ class ScooterFragment : Fragment() {
     }
 
 
-    @SuppressLint("SetTextI18n")
-    private fun updateGUI() {
-        val kmh = ((velocity * 3600).roundToInt() / 1000).toDouble()
+    class SpeedCalculator(private val context: Context) : SensorEventListener {
 
-        // Update the GUI
-        handler.post { binding.activeScooterSpeed.text = "Speed ${kmh}kmh" }
-    }
+        private val sensorManager: SensorManager =
+            context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        private val accelerometer: Sensor? =
+            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-    private fun updateVelocity() {
-        // Calculate how long this acceleration has been applied.
-        //Log.d(TAG, "lastUpdate: ${lastUpdate?.time}")
-        val timeNow = Date(System.currentTimeMillis())
-        val timeDelta = timeNow.time - lastUpdate!!.time
-        lastUpdate!!.time = timeNow.time
-        //Log.d(TAG, "time delta: $timeDelta")
-        // Calculate the change in velocity at the
-        // current acceleration since the last update.
-        val deltaVelocity = appliedAcceleration * (timeDelta / 1000)
-        appliedAcceleration = currentAcceleration
+        private var lastTime: Long = 0
+        private var lastX: Float = 0f
+        private var lastY: Float = 0f
+        private var lastZ: Float = 0f
 
-        // Add the velocity change to the current velocity.
-        velocity += deltaVelocity
+        private var speed: Float = 0f
 
-        //Log.d(TAG, "Update velocity : $velocity")
-        //binding.activeScooterSpeed.text = "Speed : ${velocity} mph"
-    }
-
-    private val sensorEventListener: SensorEventListener = object : SensorEventListener {
-        var calibration = Double.NaN
-
-        override fun onSensorChanged(event: SensorEvent) {
-            val x = event.values[0].toDouble()
-            val y = event.values[1].toDouble()
-            val z = event.values[2].toDouble()
-
-            val a = sqrt(x.pow(2.0) + y.pow(2.0) + z.pow(2.0))
-
-            if (calibration === Double.NaN) calibration = a else {
-                updateVelocity()
-                currentAcceleration = a.toFloat()
-            }
-
+        init {
+            startListening()
         }
 
+        private fun startListening() {
+            accelerometer?.let { sensor ->
+                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+        }
+
+        private fun stopListening() {
+            sensorManager.unregisterListener(this)
+        }
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+            // Ignore
+        }
+
+        override fun onSensorChanged(event: SensorEvent) {
+            val currentTime = System.currentTimeMillis()
+            val deltaTime = currentTime - lastTime
+
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+
+            val deltaX = x - lastX
+            val deltaY = y - lastY
+            val deltaZ = z - lastZ
+
+            val speedX = deltaX / deltaTime * 10000 // Adjust scaling factor as needed
+            val speedY = deltaY / deltaTime * 10000
+            val speedZ = deltaZ / deltaTime * 10000
+
+            speed = Math.sqrt((speedX * speedX + speedY * speedY + speedZ * speedZ).toDouble()).toFloat()
+
+            lastX = x
+            lastY = y
+            lastZ = z
+            lastTime = currentTime
+        }
+
+        fun getSpeed(): Float {
+            return (speed * 3.6f)
+        }
+
+        fun release() {
+            stopListening()
         }
     }
+
+
 
 }
 
