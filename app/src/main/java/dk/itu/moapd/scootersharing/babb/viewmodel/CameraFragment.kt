@@ -42,8 +42,6 @@ class CameraFragment : Fragment() {
     private lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
 
-    private var savedImageSuccess : Boolean = false
-
     private val args : CameraFragmentArgs? by navArgs()
 
     private var _binding : FragmentCameraBinding? = null
@@ -97,12 +95,7 @@ class CameraFragment : Fragment() {
     ) { result ->
         Log.d(TAG, "PhotoLaunch result : $result")
         photoResult(result)
-        if (savedImageSuccess) {
-            findNavController().popBackStack(R.id.rideListFragment, false)
-        } else {
-            shortToast("An error occurred.")
-            findNavController().popBackStack()
-        }
+        findNavController().popBackStack(R.id.rideListFragment, false)
     }
 
 
@@ -136,7 +129,6 @@ class CameraFragment : Fragment() {
         // Upload the original image.
         image.putBytes(data).addOnSuccessListener {
             Log.d(TAG, "Image uploaded")
-            savedImageSuccess = true
         }.addOnFailureListener{
             Log.d(TAG, "Image not uploaded. Exception: $it")
         }

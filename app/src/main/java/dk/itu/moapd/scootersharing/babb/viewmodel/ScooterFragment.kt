@@ -1,12 +1,17 @@
 package dk.itu.moapd.scootersharing.babb.viewmodel
 
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -14,6 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -35,22 +41,29 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
-class ScooterFragment : Fragment() {
+class ScooterFragment : Fragment(), SensorEventListener {
 
     private lateinit var auth : FirebaseAuth
-    private lateinit var database : DatabaseReference
+    lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
+
+    private lateinit var locationManager: LocationManager
 
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
     private var timerStarted = false
-
     private var unlocked = false
-    private lateinit var speedCalculator: SpeedCalculator
+
+
+    //------------------SPEED STUFF
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var gravity: FloatArray = floatArrayOf(0f, 0f, 0f)
+    //------------------
 
 
     private var _binding : FragmentScooterBinding? = null
-    private val binding
+    val binding
         get() = checkNotNull(_binding) {
             "Oh no I died"
         }
@@ -93,15 +106,17 @@ class ScooterFragment : Fragment() {
                 scooterFragmentProgressBar.visibility = View.INVISIBLE
 
             } else {
+                sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+                // Get the accelerometer sensor
+                accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
                 //lastUpdate = Calendar.getInstance().time
                 tryFindScooter(scooterID)
-                speedCalculator = SpeedCalculator(requireContext())
 
                 val t = Timer()
                 val tt: TimerTask = object : TimerTask() {
                     override fun run() {
-                        //Log.d(TAG, "Updating speed: $speed")
-                        updateSpeedText()
+
                     }
                 }
                 t.scheduleAtFixedRate(tt, 0, 1000)
@@ -111,11 +126,6 @@ class ScooterFragment : Fragment() {
 
         return binding.root
     }
-
-    private fun updateSpeedText() {
-        binding.activeScooterSpeed.text = String.format("%.2f", speedCalculator.getSpeed())
-    }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -137,7 +147,15 @@ class ScooterFragment : Fragment() {
         }
     }
 
-    private fun tryFindScooter(id : String?) {
+    override fun onResume() {
+        super.onResume()
+        accelerometer?.let { sensor ->
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+        }
+    }
+
+
+    fun tryFindScooter(id : String?) {
         if (id != null) {
             database.child("scooters").child(id).get()
                 .addOnSuccessListener {d ->
@@ -216,7 +234,7 @@ class ScooterFragment : Fragment() {
                 .addOnSuccessListener {
                     shortToast("Ride finished")
                 }
-                .addOnFailureListener {
+                .addOnFailureListener {e ->
                     shortToast("An error occurred. Ride still active!")
                 }
 
@@ -249,72 +267,47 @@ class ScooterFragment : Fragment() {
     }
 
 
-    class SpeedCalculator(private val context: Context) : SensorEventListener {
+    override fun onPause() {
+        super.onPause()
+        // Unregister sensor listeners
+        sensorManager.unregisterListener(this)
+    }
 
-        private val sensorManager: SensorManager =
-            context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        private val accelerometer: Sensor? =
-            sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        // Not used
+    }
 
-        private var lastTime: Long = 0
-        private var lastX: Float = 0f
-        private var lastY: Float = 0f
-        private var lastZ: Float = 0f
-
-        private var speed: Float = 0f
-
-        init {
-            startListening()
-        }
-
-        private fun startListening() {
-            accelerometer?.let { sensor ->
-                sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-            }
-        }
-
-        private fun stopListening() {
-            sensorManager.unregisterListener(this)
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-            // Ignore
-        }
-
-        override fun onSensorChanged(event: SensorEvent) {
-            val currentTime = System.currentTimeMillis()
-            val deltaTime = currentTime - lastTime
-
-            val x = event.values[0]
-            val y = event.values[1]
-            val z = event.values[2]
-
-            val deltaX = x - lastX
-            val deltaY = y - lastY
-            val deltaZ = z - lastZ
-
-            val speedX = deltaX / deltaTime * 10000 // Adjust scaling factor as needed
-            val speedY = deltaY / deltaTime * 10000
-            val speedZ = deltaZ / deltaTime * 10000
-
-            speed = Math.sqrt((speedX * speedX + speedY * speedY + speedZ * speedZ).toDouble()).toFloat()
-
-            lastX = x
-            lastY = y
-            lastZ = z
-            lastTime = currentTime
-        }
-
-        fun getSpeed(): Float {
-            return (speed * 3.6f)
-        }
-
-        fun release() {
-            stopListening()
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            // Calculate the speed using accelerometer data
+            val speed = calculateSpeed(event.values[0], event.values[1], event.values[2])
+            binding.activeScooterSpeed.text = String.format("%.2f", speed)
         }
     }
 
+    private fun calculateSpeed(x: Float, y: Float, z: Float): Float {
+        // Update gravity values using a low-pass filter
+        val alpha = 0.8f
+        gravity[0] = alpha * gravity[0] + (1 - alpha) * x
+        gravity[1] = alpha * gravity[1] + (1 - alpha) * y
+        gravity[2] = alpha * gravity[2] + (1 - alpha) * z
 
+        // Remove gravity from acceleration
+        val accelerationWithoutGravityX = x - gravity[0]
+        val accelerationWithoutGravityY = y - gravity[1]
+        val accelerationWithoutGravityZ = z - gravity[2]
+
+        // Calculate speed using acceleration without gravity
+        val accelerationMagnitude = sqrt(
+            accelerationWithoutGravityX * accelerationWithoutGravityX +
+                    accelerationWithoutGravityY * accelerationWithoutGravityY +
+                    accelerationWithoutGravityZ * accelerationWithoutGravityZ
+        )
+
+        // Assuming device is at rest when acceleration is close to 0
+        return if (accelerationMagnitude < 0.1f) 0f else accelerationMagnitude
+    }
 
 }
+
 

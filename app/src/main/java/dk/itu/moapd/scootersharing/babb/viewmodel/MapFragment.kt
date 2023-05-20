@@ -57,7 +57,6 @@ class MapFragment : Fragment(), OnMapReadyCallback  {
     companion object{
         private val TAG = MapFragment::class.java.simpleName
 
-        private const val ALL_PERMISSIONS_RESULT = 1011
         private lateinit var DATABASE_URL: String
 
         private const val DEFAULT_ZOOM = 15
