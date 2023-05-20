@@ -10,20 +10,22 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
@@ -33,11 +35,9 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
+import dk.itu.moapd.scootersharing.babb.model.NoParkingZones
 import dk.itu.moapd.scootersharing.babb.model.Scooter
-import java.io.File
 import java.util.*
-import kotlin.math.pow
-import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -47,7 +47,8 @@ class ScooterFragment : Fragment(), SensorEventListener {
     lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
 
-    private lateinit var locationManager: LocationManager
+    private val REQUEST_LOCATION_PERMISSION = 1001
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
@@ -56,7 +57,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
 
 
     //------------------SPEED STUFF
-    private lateinit var sensorManager: SensorManager
+    private var sensorManager: SensorManager? = null
     private var accelerometer: Sensor? = null
     private var gravity: FloatArray = floatArrayOf(0f, 0f, 0f)
     //------------------
@@ -84,6 +85,8 @@ class ScooterFragment : Fragment(), SensorEventListener {
         BUCKET_URL = resources.getString(R.string.BUCKET_URL)
         storage = Firebase.storage(BUCKET_URL)
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
+
     }
 
     override fun onCreateView(
@@ -108,18 +111,10 @@ class ScooterFragment : Fragment(), SensorEventListener {
             } else {
                 sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
                 // Get the accelerometer sensor
-                accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+                accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
                 //lastUpdate = Calendar.getInstance().time
                 tryFindScooter(scooterID)
-
-                val t = Timer()
-                val tt: TimerTask = object : TimerTask() {
-                    override fun run() {
-
-                    }
-                }
-                t.scheduleAtFixedRate(tt, 0, 1000)
 
             }
         }
@@ -139,9 +134,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
             }
 
             activeScooterButtonEnd.setOnClickListener {
-                activeScooterUnlock.isEnabled = true
-                activeScooterButtonEnd.isEnabled = false
-                activeScooterButtonPause.isEnabled = false
                 endRide()
             }
         }
@@ -150,7 +142,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         accelerometer?.let { sensor ->
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager?.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
 
@@ -200,43 +192,136 @@ class ScooterFragment : Fragment(), SensorEventListener {
     }
 
     private fun endRide() {
-        setReserveScooter(false)
+        if (!checkPermission()){
+            ActivityCompat.requestPermissions(
+                this.requireActivity(),
+                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION
+            )
+            return
+        }
 
-        auth.currentUser?.let { user ->
-            scooterID?.let {
-                uploadRidetoDB(user)
-                findNavController().navigate(
-                    ScooterFragmentDirections.takePictureEndRide(it)
-                )
+        getUserLocation { location ->
+            val uL = LatLng(location.latitude, location.longitude)
+            if (NoParkingZones.isLatLngWithinPolygon(uL)){
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Scooter cannot be parked here")
+                    .setMessage("This is a no parking zone, hence it is not possible to park a scooter in this area")
+                    .setNeutralButton("Ok") { dialog, which ->
+                        // Respond to neutral button press
+                    }.show()
+            } else {
+                setReserveScooter(false)
+                binding.activeScooterUnlock.isEnabled = true
+                binding.activeScooterButtonEnd.isEnabled = false
+                binding.activeScooterButtonPause.isEnabled = false
+
+                auth.currentUser?.let { user ->
+                    scooterID?.let {
+                        uploadRidetoDB(user)
+                        findNavController().navigate(
+                            ScooterFragmentDirections.takePictureEndRide(it)
+                        )
+                    }
+                }
             }
         }
     }
+
+
+    private fun checkPermission() =
+        ActivityCompat.checkSelfPermission(
+            this.requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(
+                    this.requireContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray) {
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
+                getUserLocation { location ->
+                    // Handle the location result
+                    Log.d(TAG, "User location: ${location.latitude}, ${location.longitude}")
+                }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getUserLocation(callback: (LatLng) -> Unit) {
+        val defaultLocation = LatLng(55.69518532166335, 12.550138887442337)
+
+        val locationResult = fusedLocationProviderClient.lastLocation
+        locationResult.addOnCompleteListener(this.requireActivity()) { task ->
+            if (task.isSuccessful) {
+                val res = task.result
+                if (res != null) {
+                    callback(LatLng(res.latitude, res.longitude))
+                } else {
+                    callback(defaultLocation)
+                }
+            } else {
+                Log.d(TAG, "Something went wrong. Setting location to default location.")
+                callback(defaultLocation)
+            }
+        }
+    }
+
+
+
 
     private fun uploadRidetoDB(user : FirebaseUser) {
         database.child("scooters").child(scooterID!!).get().addOnSuccessListener {
             val m = it.value as Map<String, Any>
 
-            val s = Scooter(
-                id = m["id"] as String?,
-                name = m["name"] as String?,
-                locationLat = m["locationLat"] as Double?,
-                locationLng = m["locationLng"] as Double?,
-                reserved = false,
-                createdAt = m["createdAt"] as Long?,
-                lastUpdateTimeStamp = Calendar.getInstance().time,
-                assignedToUserID = null
-            )
+            getUserLocation { location ->
+                val s = Scooter(
+                    id = m["id"] as String?,
+                    name = m["name"] as String?,
+                    locationLat = location.latitude as Double?,
+                    locationLng = location.longitude as Double?,
+                    reserved = false,
+                    createdAt = m["createdAt"] as Long?,
+                    lastUpdateTimeStamp = Calendar.getInstance().time,
+                    assignedToUserID = null
+                )
 
-            database.child("history")
-                .child(user.uid)
-                .child(scooterID!!)
-                .setValue(s)
-                .addOnSuccessListener {
-                    shortToast("Ride finished")
-                }
-                .addOnFailureListener {e ->
-                    shortToast("An error occurred. Ride still active!")
-                }
+                database.child("history")
+                    .child(user.uid)
+                    .child(scooterID!!)
+                    .setValue(s)
+                    .addOnSuccessListener {
+                        shortToast("Ride finished")
+                    }
+                    .addOnFailureListener {e ->
+                        shortToast("An error occurred. Ride still active!")
+                    }
+
+                database.child("scooters")
+                    .child(scooterID!!)
+                    .child("locationLat")
+                    .setValue(s.locationLat)
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Success adding lat")
+                    }.addOnFailureListener{
+                        Log.d(TAG, "Failure adding lat")
+                    }
+
+                database.child("scooters")
+                    .child(scooterID!!)
+                    .child("locationLng")
+                    .setValue(s.locationLng)
+                    .addOnSuccessListener {
+                        Log.d(TAG,"Success adding long")
+                    }.addOnFailureListener{
+                        Log.d(TAG, "Failure adding long")
+                    }
+            }
 
         }
     }
@@ -270,7 +355,8 @@ class ScooterFragment : Fragment(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         // Unregister sensor listeners
-        sensorManager.unregisterListener(this)
+        if (sensorManager != null)
+            sensorManager?.unregisterListener(this)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -281,7 +367,8 @@ class ScooterFragment : Fragment(), SensorEventListener {
         if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
             // Calculate the speed using accelerometer data
             val speed = calculateSpeed(event.values[0], event.values[1], event.values[2])
-            binding.activeScooterSpeed.text = String.format("%.2f", speed)
+            val speedKmH = speed * 3.6f
+            binding.activeScooterSpeed.text = String.format("%.2f", speedKmH)
         }
     }
 
