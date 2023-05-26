@@ -306,7 +306,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     assignedToUserID = null
                 )
 
-                database.child("history/${user.uid}/${scooterID!!}")
+                database.child("history/${user.uid}/${scooterID!!}/")
                     .setValue(s)
                     .addOnSuccessListener {
                         shortToast("Ride finished")
@@ -316,7 +316,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     }
 
 
-                database.child("scooters/${scooterID!!}/locationLat")
+                database.child("scooters/${scooterID!!}/locationLat/")
                     .setValue(s.locationLat)
                     .addOnSuccessListener {
                         Log.d(TAG, "Success adding lat")
@@ -324,7 +324,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                         Log.d(TAG, "Failure adding lat")
                     }
 
-                database.child("scooters/${scooterID!!}/locationLng")
+                database.child("scooters/${scooterID!!}/locationLng/")
                     .setValue(s.locationLng)
                     .addOnSuccessListener {
                         Log.d(TAG,"Success adding long")

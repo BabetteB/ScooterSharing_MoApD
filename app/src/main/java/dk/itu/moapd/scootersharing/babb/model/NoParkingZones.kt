@@ -39,7 +39,7 @@ class NoParkingZones {
                 LatLng(55.663503, 12.590678)
             )
 
-            /*val southHarbourCoordinates = listOf(
+            val southHarbourCoordinates = listOf(
                 LatLng(55.655628, 12.549322),
                 LatLng(55.652293, 12.545321),
                 LatLng(55.651062, 12.540502),
@@ -50,9 +50,9 @@ class NoParkingZones {
                 LatLng(55.641364, 12.554233),
                 LatLng(55.655423, 12.564599),
                 LatLng(55.657013, 12.552323)
-            )*/
+            )
 
-            return listOf(cphLakesCoordinates, iTULakesCoordinates, /*southHarbourCoordinates*/)
+            return listOf(cphLakesCoordinates , iTULakesCoordinates,southHarbourCoordinates)
         }
 
 
