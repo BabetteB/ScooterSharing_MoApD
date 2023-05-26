@@ -4,26 +4,27 @@ package dk.itu.moapd.scootersharing.babb.viewmodel
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NavUtils
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
@@ -37,8 +38,10 @@ import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentScooterBinding
 import dk.itu.moapd.scootersharing.babb.model.NoParkingZones
 import dk.itu.moapd.scootersharing.babb.model.Scooter
+import dk.itu.moapd.scootersharing.babb.model.ScooterViewModel
 import java.util.*
 import kotlin.math.sqrt
+
 
 @Suppress("DEPRECATED_IDENTITY_EQUALS")
 class ScooterFragment : Fragment(), SensorEventListener {
@@ -46,12 +49,14 @@ class ScooterFragment : Fragment(), SensorEventListener {
     private lateinit var auth : FirebaseAuth
     lateinit var database : DatabaseReference
     private lateinit var storage : FirebaseStorage
+    private lateinit var vm : ScooterViewModel
 
     private val REQUEST_LOCATION_PERMISSION = 1001
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val args : ScooterFragmentArgs? by navArgs()
     private var scooterID : String? = ""
+    private var savedScooterId : String? = ""
     private var timerStarted = false
     private var unlocked = false
 
@@ -87,17 +92,26 @@ class ScooterFragment : Fragment(), SensorEventListener {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.requireActivity())
 
+        vm = ViewModelProvider(requireActivity()).get(ScooterViewModel::class.java)
+        savedScooterId = vm.activeScooterId
+        Log.d(TAG, "vm.activeScooterid = ${vm.activeScooterId}")
+        Log.d(TAG, "instance created")
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d(TAG, "creating view")
         _binding = FragmentScooterBinding.inflate(layoutInflater, container, false)
-        scooterID = args?.sid
+
+        if (savedScooterId.isNullOrBlank()){
+            scooterID = args?.sid
+        }
 
         with (binding) {
-            if (scooterID.isNullOrBlank()) {
+            if (scooterID.isNullOrBlank() && savedScooterId.isNullOrBlank() ) {
                 scooterFragmentTitle.text = "No scooter ride in progress"
 
                 activeScooterName.text = "Please start a ride before information can be shown."
@@ -113,9 +127,15 @@ class ScooterFragment : Fragment(), SensorEventListener {
                 // Get the accelerometer sensor
                 accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
-                //lastUpdate = Calendar.getInstance().time
-                tryFindScooter(scooterID)
-
+                if (!savedScooterId.isNullOrBlank()){
+                    binding.apply {
+                        activeScooterUnlock.isEnabled = false
+                        activeScooterButtonEnd.isEnabled = true
+                        activeScooterButtonPause.isEnabled = true
+                    }
+                } else {
+                    tryFindScooter(scooterID)
+                }
             }
         }
 
@@ -128,9 +148,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
         with (binding) {
             activeScooterUnlock.setOnClickListener {
                 startRide()
-            }
-
-            activeScooterButtonPause.setOnClickListener {
             }
 
             activeScooterButtonEnd.setOnClickListener {
@@ -154,7 +171,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     val m = d.value as Map<String, Any>
                     val name = m["name"] as String?
                     enableActiveScooterFields(name)
-                    setReserveScooter(true)
+
 
                 }.addOnFailureListener {
                     Log.d(TAG, "could not get scooter from db")
@@ -174,7 +191,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                         reserved
                     )
                     .addOnSuccessListener {
-                        Log.d(TAG, "Scooter reserved")
+                        Log.d(TAG, "Scooter reserved = ${reserved}!")
                     }
                     .addOnFailureListener {
                         shortToast("Scooter reserved = ${reserved}!")
@@ -212,6 +229,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     }.show()
             } else {
                 setReserveScooter(false)
+                vm.activeScooterId = ""
                 binding.activeScooterUnlock.isEnabled = true
                 binding.activeScooterButtonEnd.isEnabled = false
                 binding.activeScooterButtonPause.isEnabled = false
@@ -272,9 +290,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
         }
     }
 
-
-
-
     private fun uploadRidetoDB(user : FirebaseUser) {
         database.child("scooters").child(scooterID!!).get().addOnSuccessListener {
             val m = it.value as Map<String, Any>
@@ -291,9 +306,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     assignedToUserID = null
                 )
 
-                database.child("history")
-                    .child(user.uid)
-                    .child(scooterID!!)
+                database.child("history/${user.uid}/${scooterID!!}")
                     .setValue(s)
                     .addOnSuccessListener {
                         shortToast("Ride finished")
@@ -302,9 +315,8 @@ class ScooterFragment : Fragment(), SensorEventListener {
                         shortToast("An error occurred. Ride still active!")
                     }
 
-                database.child("scooters")
-                    .child(scooterID!!)
-                    .child("locationLat")
+
+                database.child("scooters/${scooterID!!}/locationLat")
                     .setValue(s.locationLat)
                     .addOnSuccessListener {
                         Log.d(TAG, "Success adding lat")
@@ -312,9 +324,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                         Log.d(TAG, "Failure adding lat")
                     }
 
-                database.child("scooters")
-                    .child(scooterID!!)
-                    .child("locationLng")
+                database.child("scooters/${scooterID!!}/locationLng")
                     .setValue(s.locationLng)
                     .addOnSuccessListener {
                         Log.d(TAG,"Success adding long")
@@ -337,6 +347,10 @@ class ScooterFragment : Fragment(), SensorEventListener {
     private fun startRide() {
         unlocked = true
         timerStarted = true
+        setReserveScooter(true)
+        Log.d(TAG, "saving scooter id : $scooterID to vm")
+        vm.activeScooterId = scooterID
+        Log.d(TAG, "vm.activeScooterId: ${vm.activeScooterId}")
 
         binding.apply {
             activeScooterUnlock.isEnabled = false
@@ -354,9 +368,20 @@ class ScooterFragment : Fragment(), SensorEventListener {
 
     override fun onPause() {
         super.onPause()
+        Log.d(TAG, "onPause")
         // Unregister sensor listeners
         if (sensorManager != null)
             sensorManager?.unregisterListener(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy")
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

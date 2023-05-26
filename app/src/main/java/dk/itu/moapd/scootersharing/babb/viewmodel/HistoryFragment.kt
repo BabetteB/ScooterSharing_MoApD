@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -16,12 +17,15 @@ import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentHistoryBinding
 import dk.itu.moapd.scootersharing.babb.model.HistoryAdapter
 import dk.itu.moapd.scootersharing.babb.model.Scooter
+import dk.itu.moapd.scootersharing.babb.model.ScooterViewModel
+
 class HistoryFragment : Fragment() {
 
     private lateinit var database: DatabaseReference
-    private lateinit var auth : FirebaseAuth
+    lateinit var auth : FirebaseAuth
+    lateinit var vm : ScooterViewModel
 
-    private var _binding: FragmentHistoryBinding? = null
+    var _binding: FragmentHistoryBinding? = null
     private val binding
         get() = checkNotNull(_binding){
             "Cannot access binding."
@@ -40,6 +44,9 @@ class HistoryFragment : Fragment() {
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
         auth = FirebaseAuth.getInstance()
+
+        vm = ViewModelProvider(requireActivity()).get(ScooterViewModel::class.java)
+        Log.d(TAG, "vm SCOOTER_ID : ${vm.activeScooterId}")
     }
 
     override fun onCreateView(

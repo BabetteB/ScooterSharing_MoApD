@@ -10,7 +10,7 @@ import com.google.maps.android.PolyUtil
 class NoParkingZones {
 
     companion object{
-        private var appliedNoParkingZones: MutableList<List<LatLng>> = mutableListOf()
+        var appliedNoParkingZones: MutableList<List<LatLng>> = mutableListOf()
 
         private fun zoneCoordsList() : List<List<LatLng>> {
             val cphLakesCoordinates = listOf(

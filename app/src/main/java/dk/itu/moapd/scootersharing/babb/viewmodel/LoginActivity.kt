@@ -40,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
+
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
             // Sign in success, update UI with the signed-in user's information.
@@ -49,6 +50,8 @@ class LoginActivity : AppCompatActivity() {
         // If sign in fails, display a message to the user.
             toast("Authentication failed.")
     }
+
+
 
     private fun startMainActivity() {
         val intent = Intent(this, MainActivity::class.java)

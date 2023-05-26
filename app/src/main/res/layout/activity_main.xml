@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:id="@+id/main_activity"
     tools:context=".viewmodel.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -20,6 +21,16 @@
             style="@style/customTopTitle"
             android:text="@string/custom_title"/>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/sign_out"
+            android:icon="@drawable/sign_out"
+            android:layout_gravity="end"
+            android:layout_marginEnd="10dp"
+            android:text="Sign Out"
+            android:title="@string/sign_out"
+            app:showAsAction="ifRoom|withText" />
 
     </androidx.appcompat.widget.Toolbar>
 

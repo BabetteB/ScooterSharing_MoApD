@@ -32,6 +32,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
@@ -54,52 +55,40 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navController : NavController
     private lateinit var DATABASE_URL: String
-
-
-    /**
-     * Binding view and activity
-     */
     private lateinit var mainBinding : ActivityMainBinding
-
-    private lateinit var auth : FirebaseAuth
+    lateinit var auth : FirebaseAuth
+    private lateinit var vm: ScooterViewModel
 
     companion object {
         lateinit var database: DatabaseReference
         lateinit var currentUser : FirebaseUser
         private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(
+        val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.ACTIVITY_RECOGNITION,
             Manifest.permission.HIGH_SAMPLING_RATE_SENSORS
         )
     }
 
-    private fun checkPermission() =
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.HIGH_SAMPLING_RATE_SENSORS) == PackageManager.PERMISSION_GRANTED){
-            Toast.makeText(this, "Camera Permission Already Granted", Toast.LENGTH_SHORT).show()
-        } else {
-            ActivityCompat.requestPermissions(this,
-                REQUIRED_PERMISSIONS,
-                REQUEST_CODE_PERMISSIONS
-            )
-        }
-
-    /**
-     * upon creating the instance of main activity, inflate the binding (see activity_main.xml)
-     */
-
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Initialize Firebase database
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
-
+        vm = ViewModelProvider(this).get(ScooterViewModel::class.java)
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
-
-
         mainBinding = ActivityMainBinding.inflate(layoutInflater)
+
+        with (mainBinding) {
+            signOut.setOnClickListener {
+                Toast.makeText(
+                    baseContext,
+                    "Signing out",
+                    Toast.LENGTH_SHORT
+                ).show()
+                startLogOutActivity()
+            }
+        }
         setContentView(mainBinding.root)
 
         @RequiresApi(Build.VERSION_CODES.S)
@@ -121,16 +110,21 @@ class MainActivity : AppCompatActivity() {
 
         if (auth.currentUser == null)
             startLoginActivity()
-
-        currentUser = auth.currentUser!!
+        else {
+            currentUser = auth.currentUser!!
+        }
     }
 
 
-
-    private fun startLoginActivity() {
+    fun startLoginActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    fun startLogOutActivity() {
+        FirebaseAuth.getInstance().signOut()
+        startLoginActivity()
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
