@@ -128,6 +128,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                 accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
                 if (!savedScooterId.isNullOrBlank()){
+                    tryFindScooter(savedScooterId)
                     binding.apply {
                         activeScooterUnlock.isEnabled = false
                         activeScooterButtonEnd.isEnabled = true
@@ -135,6 +136,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     }
                 } else {
                     tryFindScooter(scooterID)
+                    enableActiveScooterFields()
                 }
             }
         }
@@ -170,8 +172,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
                 .addOnSuccessListener {d ->
                     val m = d.value as Map<String, Any>
                     val name = m["name"] as String?
-                    enableActiveScooterFields(name)
-
+                    binding.activeScooterName.text = name
 
                 }.addOnFailureListener {
                     Log.d(TAG, "could not get scooter from db")
@@ -200,8 +201,7 @@ class ScooterFragment : Fragment(), SensorEventListener {
         }
     }
 
-    private fun enableActiveScooterFields(scooterName : String?) {
-        binding.activeScooterName.text = scooterName
+    private fun enableActiveScooterFields() {
 
         binding.activeScooterButtonEnd.isEnabled = false
         binding.activeScooterButtonPause.isEnabled = false
