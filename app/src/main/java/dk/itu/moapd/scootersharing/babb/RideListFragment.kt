@@ -3,6 +3,12 @@ package dk.itu.moapd.scootersharing.babb
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -18,6 +24,7 @@ import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
 import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
+import androidx.compose.material.Text
 
 
 class RideListFragment : Fragment(), ItemClickListener {
@@ -94,6 +101,15 @@ class RideListFragment : Fragment(), ItemClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                Greeting("Freyja")
+            }
+        }
+
+
+
         _binding = FragmentRideListBinding.inflate(inflater, container, false)
         binding.rideRecyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -114,7 +130,10 @@ class RideListFragment : Fragment(), ItemClickListener {
     }
 
 
-
+    @Composable
+    fun Greeting(name: String) {
+        Text(text = "Hi there, $name")
+    }
     private fun updateBinding(adapter : CustomAdapter) {
         binding.rideRecyclerView.adapter = adapter
     }
