@@ -27,7 +27,7 @@ class ScooterHolder(
         with (binding) {
 
             scooterName.text = scooter.name
-            //scooterLocation.text = scooter.location
+            scooterLocation.text = scooter.locationLat.toString() + System.lineSeparator() + scooter.locationLng.toString()
             scooterLastUpdate.text = scooter.lastUpdateTimeStamp.toString()
 
             cardView.setOnClickListener {
