@@ -20,7 +20,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.ScooterSharing"
-        tools:targetApi="31" >
+        tools:targetApi="35" >
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 

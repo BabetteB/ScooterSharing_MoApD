@@ -54,6 +54,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material:material:1.7.7")
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
@@ -85,6 +86,7 @@ dependencies {
     implementation "androidx.camera:camera-view:1.2.2"
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
+    implementation libs.androidx.ui.android
 
     // AndroidX Test dependencies
     testImplementation 'androidx.test:core:1.5.0'
