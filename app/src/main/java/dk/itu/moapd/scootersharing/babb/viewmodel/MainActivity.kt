@@ -41,6 +41,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.ActivityMainBinding
@@ -74,6 +75,8 @@ class MainActivity : AppCompatActivity() {
         // Initialize Firebase database
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
+        val db = FirebaseFirestore.getInstance()
+        val scootersCollection = db.collection("scooters")
         vm = ViewModelProvider(this).get(ScooterViewModel::class.java)
         // Initialize Firebase Auth.
         auth = FirebaseAuth.getInstance()
@@ -91,10 +94,7 @@ class MainActivity : AppCompatActivity() {
         }
         setContentView(mainBinding.root)
 
-        @RequiresApi(Build.VERSION_CODES.S)
-        if (!allPermissionsGranted())
-            ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        checkPermissions()
 
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_container) as NavHostFragment
@@ -103,8 +103,13 @@ class MainActivity : AppCompatActivity() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         setupWithNavController(bottomNav, navController)
     }
-
-
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun checkPermissions()
+    {
+        if (!allPermissionsGranted())
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+    }
     override fun onStart() {
         super.onStart()
 

@@ -9,7 +9,7 @@ plugins {
 
 android {
     namespace 'dk.itu.moapd.scootersharing.babb'
-    compileSdk 33
+    compileSdk 34
 
     testOptions {
         unitTests {
@@ -54,7 +54,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
@@ -68,14 +67,14 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
     implementation 'com.firebaseui:firebase-ui-database:7.1.1'
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
-    implementation 'com.google.firebase:firebase-database-ktx:20.2.0'
-    implementation platform('com.google.firebase:firebase-bom:31.3.0')
+    implementation 'com.google.firebase:firebase-database-ktx:21.0.0'
+    implementation platform('com.google.firebase:firebase-bom:33.8.0')
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.maps.android:android-maps-utils:2.2.0'
     implementation 'com.google.firebase:firebase-database-ktx'
-    implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
+    implementation 'com.google.firebase:firebase-storage-ktx:21.0.1'
     implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     implementation 'com.google.android.libraries.places:places:3.1.0'
@@ -85,6 +84,7 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:1.2.2"
     implementation "androidx.camera:camera-view:1.2.2"
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
+    implementation 'com.google.firebase:firebase-firestore-ktx:25.1.1'
 
     // AndroidX Test dependencies
     testImplementation 'androidx.test:core:1.5.0'
@@ -95,8 +95,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.2.0'
     testImplementation 'org.mockito:mockito-inline:3.12.4'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
-
+    //Concurrent
     // Firebase Test Lab dependencies (if needed for Firebase-related tests)
+    implementation 'com.google.guava:guava:29.0-android'
     androidTestImplementation 'com.google.firebase:firebase-firestore-testing:23.0.0'
     androidTestImplementation 'com.google.firebase:firebase-auth-testing:23.0.0'
 

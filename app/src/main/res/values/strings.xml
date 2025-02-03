@@ -26,7 +26,7 @@
     <string name="toolbar_history_title">History</string>
 
     <string name="new_ride">New Ride</string>
-    <string name="BUCKET_URL">gs://scooter-sharing-b3fdd.appspot.com</string>
+    <string name="BUCKET_URL">gs://scooterscoots-a64ab.firebasestorage.app</string>
 
     <string name="frag_camera_photo_album_title">Your Photo Album</string>
     <string name="frag_camera_photo_album_subtitle">(why you have it here we dont know, but dont judge)</string>

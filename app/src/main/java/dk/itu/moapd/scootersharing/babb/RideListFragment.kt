@@ -1,6 +1,7 @@
 package dk.itu.moapd.scootersharing.babb
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -11,6 +12,7 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
@@ -42,6 +44,49 @@ class RideListFragment : Fragment(), ItemClickListener {
         auth = FirebaseAuth.getInstance()
         DATABASE_URL = resources.getString(R.string.DATABASE_URL)
         database = Firebase.database(DATABASE_URL).reference
+        fun createMockScooters(): List<Scooter> {
+            val scooter1 = Scooter(
+                id = "scooter1",
+                name = "Scooter A",
+                locationLat = 37.7749,
+                locationLng = -122.4194,
+                reserved = false,
+                createdAt = System.currentTimeMillis(),
+                assignedToUserID = "user123",
+                imageUri = "https://example.com/scooter1.jpg"
+            )
+
+            val scooter2 = Scooter(
+                id = "scooter2",
+                name = "Scooter B",
+                locationLat = 34.0522,
+                locationLng = -118.2437,
+                reserved = true,
+                createdAt = System.currentTimeMillis(),
+                assignedToUserID = "user456",
+                imageUri = "https://example.com/scooter2.jpg"
+            )
+
+            return listOf(scooter1, scooter2)
+        }
+
+        fun saveMockScootersToFirebase() {
+            val mockScooters = createMockScooters()
+
+            // Save each scooter under its ID as a separate child
+            for (scooter in mockScooters) {
+                scooter.id?.let {
+                    database.child(it).setValue(scooter)
+                        .addOnSuccessListener {
+                            Log.d("Firebase", "Scooter $it added successfully")
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("Firebase", "Error adding scooter", e)
+                        }
+                }
+            }
+        }
+saveMockScootersToFirebase()
     }
 
     override fun onCreateView(
@@ -54,7 +99,7 @@ class RideListFragment : Fragment(), ItemClickListener {
 
         // get all scooters and sort by location
         val query = database
-            .child("scooters")
+            .child("scooter")
 
         val options =
             FirebaseRecyclerOptions.Builder<Scooter>()

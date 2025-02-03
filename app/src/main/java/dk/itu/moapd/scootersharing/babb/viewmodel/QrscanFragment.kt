@@ -26,7 +26,6 @@ import dk.itu.moapd.scootersharing.babb.R
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentQrscanBinding
 import java.util.concurrent.Executors
 
-
 class QrscanFragment : Fragment() {
 
     private var _binding : FragmentQrscanBinding? = null
