@@ -118,7 +118,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
                 activeScooterSpeed.visibility = View.INVISIBLE
                 activeScooterTime.visibility = View.INVISIBLE
                 activeScooterUnlock.visibility = View.INVISIBLE
-                activeScooterButtonPause.visibility = View.INVISIBLE
                 activeScooterButtonEnd.visibility= View.INVISIBLE
                 scooterFragmentProgressBar.visibility = View.INVISIBLE
 
@@ -132,7 +131,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
                     binding.apply {
                         activeScooterUnlock.isEnabled = false
                         activeScooterButtonEnd.isEnabled = true
-                        activeScooterButtonPause.isEnabled = true
                     }
                 } else {
                     tryFindScooter(scooterID)
@@ -204,7 +202,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
     private fun enableActiveScooterFields() {
 
         binding.activeScooterButtonEnd.isEnabled = false
-        binding.activeScooterButtonPause.isEnabled = false
 
     }
 
@@ -232,7 +229,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
                 vm.activeScooterId = ""
                 binding.activeScooterUnlock.isEnabled = true
                 binding.activeScooterButtonEnd.isEnabled = false
-                binding.activeScooterButtonPause.isEnabled = false
 
                 auth.currentUser?.let { user ->
                     scooterID?.let {
@@ -355,7 +351,6 @@ class ScooterFragment : Fragment(), SensorEventListener {
         binding.apply {
             activeScooterUnlock.isEnabled = false
             activeScooterButtonEnd.isEnabled = true
-            activeScooterButtonPause.isEnabled = true
         }
 
         Toast.makeText(
