@@ -3,7 +3,7 @@ package dk.itu.moapd.scootersharing.babb
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.platform.ComposeView
@@ -18,13 +18,11 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import dk.itu.moapd.scootersharing.babb.databinding.FragmentRideListBinding
 import dk.itu.moapd.scootersharing.babb.model.*
 import dk.itu.moapd.scootersharing.babb.viewmodel.StartRideFragment
 import dk.itu.moapd.scootersharing.babb.viewmodel.UpdateRideFragment
-import androidx.compose.material.Text
 
 
 class RideListFragment : Fragment(), ItemClickListener {
